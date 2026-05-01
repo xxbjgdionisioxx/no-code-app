@@ -36,6 +36,7 @@
                         'dropdown' => '📋 Dropdown',
                         'checkbox' => '☑️ Checkbox',
                         'file'     => '📎 File Upload',
+                        'lookup'   => '🔗 Lookup (Link)',
                     ];
                     $currentType = $field['field_type'] ?? 'text';
                     foreach ($types as $t):
@@ -56,6 +57,24 @@
                         echo htmlspecialchars(implode("\n", $field['options']['choices']));
                     }
                 ?></textarea>
+            </div>
+            
+            <!-- Lookup-specific: target module -->
+            <div class="mb-3 <?= $currentType !== 'lookup' ? 'd-none' : '' ?>" id="lookupGroup">
+                <label class="form-label small fw-semibold">Target Module <span class="text-danger">*</span></label>
+                <select class="form-select form-select-sm" name="target_module_id" id="targetModuleSelect">
+                    <option value="">— Select Module —</option>
+                    <?php
+                    $allMods = (new \Engine\ModuleEngine(getDB()))->listModules($app['id']);
+                    $targetId = $field['options']['target_module_id'] ?? null;
+                    foreach ($allMods as $m):
+                    ?>
+                    <option value="<?= $m['id'] ?>" <?= $m['id'] == $targetId ? 'selected':'' ?>>
+                        <?= htmlspecialchars($m['name']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <div class="form-text">Select the module this field should link to.</div>
             </div>
 
             <!-- Validation -->
@@ -206,6 +225,7 @@ const labelInput = document.getElementById('fieldLabel');
 function updateVisibility() {
     const t = typeSelect.value;
     choicesGrp.classList.toggle('d-none', t !== 'dropdown');
+    document.getElementById('lookupGroup').classList.toggle('d-none', t !== 'lookup');
     numVal.classList.toggle('d-none',     t !== 'number');
     txtVal.classList.toggle('d-none',     !['text','textarea'].includes(t));
     updatePreview();
@@ -226,6 +246,8 @@ function updatePreview() {
         input = `<div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Yes</label></div>`;
     } else if (type === 'file') {
         input = `<input type="file" class="form-control" disabled>`;
+    } else if (type === 'lookup') {
+        input = `<select class="form-select" disabled><option>— Select Linked Record —</option></select>`;
     } else {
         input = `<input type="${type === 'email' ? 'email' : type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'}" class="form-control" placeholder="Enter ${label.toLowerCase()}..." disabled>`;
     }

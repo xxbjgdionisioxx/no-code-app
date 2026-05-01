@@ -54,11 +54,16 @@ class FieldController extends Controller
         }
 
         // Parse validation rules
+        $vMin = $req->post('v_min');
+        $vMax = $req->post('v_max');
+        $vMinLen = $req->post('v_min_length');
+        $vMaxLen = $req->post('v_max_length');
+
         $validation = array_filter([
-            'min'        => $req->post('v_min') !== '' ? (float)$req->post('v_min') : null,
-            'max'        => $req->post('v_max') !== '' ? (float)$req->post('v_max') : null,
-            'min_length' => $req->post('v_min_length') !== '' ? (int)$req->post('v_min_length') : null,
-            'max_length' => $req->post('v_max_length') !== '' ? (int)$req->post('v_max_length') : null,
+            'min'        => ($vMin !== null && $vMin !== '') ? (float)$vMin : null,
+            'max'        => ($vMax !== null && $vMax !== '') ? (float)$vMax : null,
+            'min_length' => ($vMinLen !== null && $vMinLen !== '') ? (int)$vMinLen : null,
+            'max_length' => ($vMaxLen !== null && $vMaxLen !== '') ? (int)$vMaxLen : null,
         ], fn($v) => $v !== null);
 
         $this->fieldEngine->createField($moduleId, [
@@ -72,7 +77,9 @@ class FieldController extends Controller
             'placeholder'   => $req->post('placeholder'),
             'help_text'     => $req->post('help_text'),
             'validation'    => $validation,
-            'options'       => $options,
+            'options'       => array_merge($options, [
+                'target_module_id' => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null
+            ]),
             'sort_order'    => (int)$req->post('sort_order', 0),
         ]);
 
@@ -119,11 +126,16 @@ class FieldController extends Controller
             $options = ['choices' => array_values($choices)];
         }
 
+        $vMin = $req->post('v_min');
+        $vMax = $req->post('v_max');
+        $vMinLen = $req->post('v_min_length');
+        $vMaxLen = $req->post('v_max_length');
+
         $validation = array_filter([
-            'min'        => $req->post('v_min')        !== '' ? (float)$req->post('v_min')        : null,
-            'max'        => $req->post('v_max')        !== '' ? (float)$req->post('v_max')        : null,
-            'min_length' => $req->post('v_min_length') !== '' ? (int)$req->post('v_min_length')   : null,
-            'max_length' => $req->post('v_max_length') !== '' ? (int)$req->post('v_max_length')   : null,
+            'min'        => ($vMin !== null && $vMin !== '') ? (float)$vMin : null,
+            'max'        => ($vMax !== null && $vMax !== '') ? (float)$vMax : null,
+            'min_length' => ($vMinLen !== null && $vMinLen !== '') ? (int)$vMinLen : null,
+            'max_length' => ($vMaxLen !== null && $vMaxLen !== '') ? (int)$vMaxLen : null,
         ], fn($v) => $v !== null);
 
         $this->fieldEngine->updateField($fieldId, [
@@ -137,7 +149,9 @@ class FieldController extends Controller
             'placeholder'   => $req->post('placeholder'),
             'help_text'     => $req->post('help_text'),
             'validation'    => $validation,
-            'options'       => $options,
+            'options'       => array_merge($options, [
+                'target_module_id' => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null
+            ]),
         ]);
 
         $this->flashSuccess('Field updated.');

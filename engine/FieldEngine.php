@@ -345,6 +345,40 @@ class FieldEngine
             'validate' => fn($f, $v) => [],
             'cast'     => fn($v) => (string)$v,
         ];
+
+        // Lookup (Relationship)
+        $this->registry['lookup'] = [
+            'render' => function ($f, $v) {
+                $targetModId = (int)($f['options']['target_module_id'] ?? 0);
+                if (!$targetModId) return '<div class="text-danger small">Error: No target module selected.</div>';
+
+                // Fetch all records for the target module
+                $stmt = $this->db->prepare('SELECT id, data FROM records WHERE module_id = ? ORDER BY id DESC');
+                $stmt->execute([$targetModId]);
+                $records = $stmt->fetchAll();
+
+                $req = $f['is_required'] ? 'required' : '';
+                $html = "<select class=\"form-select\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" {$req}>";
+                $html .= '<option value="">— Select Linked Record —</option>';
+
+                foreach ($records as $r) {
+                    $data = json_decode($r['data'] ?? '{}', true) ?? [];
+                    // Use first key as label, or ID if empty
+                    $label = !empty($data) ? reset($data) : "Record #{$r['id']}";
+                    $sel = ($v == $r['id']) ? 'selected' : '';
+                    $html .= "<option value=\"{$r['id']}\" {$sel}>" . htmlspecialchars((string)$label) . "</option>";
+                }
+                return $html . '</select>';
+            },
+            'validate' => function ($f, $v) {
+                if (!$v) return [];
+                $targetModId = (int)($f['options']['target_module_id'] ?? 0);
+                $stmt = $this->db->prepare('SELECT id FROM records WHERE id = ? AND module_id = ?');
+                $stmt->execute([$v, $targetModId]);
+                return $stmt->fetch() ? [] : ["Selected record for {$f['name']} does not exist in target module."];
+            },
+            'cast' => fn($v) => (int)$v,
+        ];
     }
 
     // ── Helpers ──────────────────────────────────────────────
