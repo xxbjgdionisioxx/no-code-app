@@ -1,0 +1,47 @@
+<?php
+// Fleet Manager — Template Data
+return [
+    'modules' => [
+        ['id'=>1,'name'=>'Vehicles',   'slug'=>'vehicles',   'description'=>'Company vehicle list',   'icon'=>'bi-car-front','sort_order'=>0],
+        ['id'=>2,'name'=>'Maintenance','slug'=>'maintenance','description'=>'Service logs & repairs', 'icon'=>'bi-wrench',   'sort_order'=>1],
+        ['id'=>3,'name'=>'Fuel Logs',  'slug'=>'fuel_logs',  'description'=>'Gas and mileage records','icon'=>'bi-fuel-pump','sort_order'=>2],
+    ],
+    'fields' => [
+        ['id'=>1, 'module_id'=>1,'name'=>'Plate Number', 'slug'=>'plate',  'type'=>'text',    'required'=>1,'unique'=>1,'searchable'=>1,'in_list'=>1,'sort'=>0],
+        ['id'=>2, 'module_id'=>1,'name'=>'Type',         'slug'=>'type',   'type'=>'dropdown','required'=>1,'unique'=>0,'searchable'=>1,'in_list'=>1,'sort'=>1,'options'=>['choices'=>['Sedan','SUV','Truck','Van','Electric']]],
+        ['id'=>3, 'module_id'=>1,'name'=>'Make/Model',   'slug'=>'model',  'type'=>'text',    'required'=>1,'unique'=>0,'searchable'=>1,'in_list'=>1,'sort'=>2],
+        ['id'=>4, 'module_id'=>1,'name'=>'Odometer (km)','slug'=>'mileage','type'=>'number',  'required'=>0,'unique'=>0,'searchable'=>0,'in_list'=>1,'sort'=>3],
+        ['id'=>5, 'module_id'=>1,'name'=>'Status',       'slug'=>'status', 'type'=>'dropdown','required'=>1,'unique'=>0,'searchable'=>1,'in_list'=>1,'sort'=>4,'options'=>['choices'=>['Active','In Maintenance','Retired']]],
+        ['id'=>6, 'module_id'=>2,'name'=>'Vehicle Plate','slug'=>'vehicle',     'type'=>'text',    'required'=>1,'unique'=>0,'searchable'=>1,'in_list'=>1,'sort'=>0],
+        ['id'=>7, 'module_id'=>2,'name'=>'Cost',         'slug'=>'cost',        'type'=>'number',  'required'=>1,'unique'=>0,'searchable'=>0,'in_list'=>1,'sort'=>1],
+        ['id'=>8, 'module_id'=>2,'name'=>'Service Date', 'slug'=>'service_date','type'=>'date',    'required'=>1,'unique'=>0,'searchable'=>0,'in_list'=>1,'sort'=>2],
+        ['id'=>9, 'module_id'=>2,'name'=>'Service Type', 'slug'=>'service_type','type'=>'dropdown','required'=>1,'unique'=>0,'searchable'=>1,'in_list'=>1,'sort'=>3,'options'=>['choices'=>['Oil Change','Tires','Brake Service','Engine Repair','General Inspection']]],
+        ['id'=>10,'module_id'=>2,'name'=>'Notes',        'slug'=>'notes',       'type'=>'textarea','required'=>0,'unique'=>0,'searchable'=>0,'in_list'=>0,'sort'=>4],
+        ['id'=>11,'module_id'=>3,'name'=>'Vehicle Plate','slug'=>'vehicle','type'=>'text',  'required'=>1,'unique'=>0,'searchable'=>1,'in_list'=>1,'sort'=>0],
+        ['id'=>12,'module_id'=>3,'name'=>'Liters',       'slug'=>'liters', 'type'=>'number','required'=>1,'unique'=>0,'searchable'=>0,'in_list'=>1,'sort'=>1],
+        ['id'=>13,'module_id'=>3,'name'=>'Total Price',  'slug'=>'price',  'type'=>'number','required'=>1,'unique'=>0,'searchable'=>0,'in_list'=>1,'sort'=>2],
+        ['id'=>14,'module_id'=>3,'name'=>'Log Date',     'slug'=>'date',   'type'=>'date',  'required'=>1,'unique'=>0,'searchable'=>0,'in_list'=>1,'sort'=>3],
+    ],
+    'records' => [
+        ['module_id'=>1,'data'=>['plate'=>'ABC-1234','type'=>'Sedan',   'model'=>'Toyota Camry', 'mileage'=>'45200', 'status'=>'Active']],
+        ['module_id'=>1,'data'=>['plate'=>'VAN-9988','type'=>'Van',     'model'=>'Ford Transit', 'mileage'=>'82000', 'status'=>'Active']],
+        ['module_id'=>1,'data'=>['plate'=>'TRK-4455','type'=>'Truck',   'model'=>'Isuzu ELF',   'mileage'=>'112000','status'=>'In Maintenance']],
+        ['module_id'=>1,'data'=>['plate'=>'SUV-2277','type'=>'SUV',     'model'=>'Honda CR-V',  'mileage'=>'31500', 'status'=>'Active']],
+        ['module_id'=>1,'data'=>['plate'=>'EV-0011', 'type'=>'Electric','model'=>'Tesla Model 3','mileage'=>'18700','status'=>'Active']],
+        ['module_id'=>2,'data'=>['vehicle'=>'ABC-1234','cost'=>'80',  'service_date'=>'2025-05-10','service_type'=>'Oil Change',       'notes'=>'']],
+        ['module_id'=>2,'data'=>['vehicle'=>'VAN-9988','cost'=>'450', 'service_date'=>'2025-04-20','service_type'=>'Tires',            'notes'=>'Replaced all 4 tires']],
+        ['module_id'=>2,'data'=>['vehicle'=>'TRK-4455','cost'=>'1200','service_date'=>'2025-05-25','service_type'=>'Engine Repair',    'notes'=>'Coolant leak fixed']],
+        ['module_id'=>2,'data'=>['vehicle'=>'SUV-2277','cost'=>'60',  'service_date'=>'2025-05-15','service_type'=>'General Inspection','notes'=>'All OK']],
+        ['module_id'=>3,'data'=>['vehicle'=>'ABC-1234','liters'=>'40','price'=>'62', 'date'=>'2025-06-01']],
+        ['module_id'=>3,'data'=>['vehicle'=>'VAN-9988','liters'=>'65','price'=>'101','date'=>'2025-06-02']],
+        ['module_id'=>3,'data'=>['vehicle'=>'SUV-2277','liters'=>'45','price'=>'70', 'date'=>'2025-06-03']],
+    ],
+    'widgets' => [
+        ['title'=>'Fleet Size',     'type'=>'count',    'module_id'=>1,'color'=>'#14b8a6','width'=>3],
+        ['title'=>'Fuel Spend',     'type'=>'sum',      'module_id'=>3, 'field_id'=>13, 'color'=>'#10b981','width'=>3],
+        ['title'=>'Maint. Costs',   'type'=>'sum',      'module_id'=>2, 'field_id'=>7, 'color'=>'#f43f5e','width'=>3],
+        ['title'=>'Avg Fuel Cost',  'type'=>'average',  'module_id'=>3, 'field_id'=>13, 'color'=>'#f59e0b','width'=>3],
+        ['title'=>'Vehicle Types',  'type'=>'pie_chart','module_id'=>1, 'field_id'=>2, 'color'=>'#14b8a6','width'=>6],
+        ['title'=>'Maint. by Type', 'type'=>'bar_chart','module_id'=>2, 'field_id'=>9, 'color'=>'#2dd4bf','width'=>6],
+    ],
+];
