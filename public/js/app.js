@@ -219,6 +219,7 @@ document.addEventListener('click', e => {
             else badge.remove();
         }
     }
+});
 
 // ── Custom Confirmation Modal Logic ─────────────────────
 (function() {
