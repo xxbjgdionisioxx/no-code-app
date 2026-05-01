@@ -1,6 +1,6 @@
-# AppForge — No-Code Web Application Builder
+# Modulyn — No-Code Web Application Builder
 
-**AppForge** is a highly scalable, robust, and intuitive no-code platform that allows users to build fully customized web applications entirely from a visual interface—without writing a single line of code.
+**Modulyn** is a highly scalable, robust, and intuitive no-code platform that allows users to build fully customized web applications entirely from a visual interface—without writing a single line of code.
 
 Built entirely in native PHP 8 and MySQL, it utilizes an advanced Hybrid EAV (Entity-Attribute-Value) architecture to dynamically generate database schemas, routing, REST APIs, and UI components on the fly. 
 
@@ -36,8 +36,8 @@ Built entirely in native PHP 8 and MySQL, it utilizes an advanced Hybrid EAV (En
 1. **Clone the Repository**
    Place the project inside your local web server environment (e.g., Laragon, XAMPP, or a dedicated VPS).
    ```bash
-   git clone https://github.com/yourusername/appforge.git
-   cd appforge
+   git clone https://github.com/yourusername/modulyn.git
+   cd modulyn
    ```
 
 2. **Database Setup**
@@ -69,7 +69,7 @@ Built entirely in native PHP 8 and MySQL, it utilizes an advanced Hybrid EAV (En
 
 ### Getting Started
 Log in to the system using the default administrative account (seeded from `seed_inventory.sql`):
-* **Email**: `admin@appforge.local`
+* **Email**: `admin@modulyn.local`
 * **Password**: `password123`
 
 ### Creating Your First App
@@ -82,7 +82,7 @@ Log in to the system using the default administrative account (seeded from `seed
 
 ## 🔒 Architecture Note
 
-AppForge relies heavily on the Front Controller pattern. Every request is routed through `index.php` and dispatched by the internal `Core\Router`. Security boundaries, such as CSRF protection and role-based authentication checks, are strictly enforced at the middleware and engine levels.
+Modulyn relies heavily on the Front Controller pattern. Every request is routed through `index.php` and dispatched by the internal `Core\Router`. Security boundaries, such as CSRF protection and role-based authentication checks, are strictly enforced at the middleware and engine levels.
 
 ## 📄 License
 This project is proprietary and built by **Bryan James Dionisio**. All rights reserved.
