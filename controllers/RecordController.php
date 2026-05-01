@@ -250,6 +250,65 @@ class RecordController extends Controller
         $this->redirect("/apps/{$app['id']}/{$module['slug']}");
     }
 
+    // ── Export ────────────────────────────────────────────────
+    public function export(Request $req, array $params): void
+    {
+        $user = Middleware::auth();
+        [$app, $module, $schema] = $this->resolveContext($params);
+        $this->rbacEngine->enforce($user['id'], $module['id'], 'view');
+
+        $format = $req->query('format', 'csv');
+
+        // Fetch all records (up to 50,000 for export performance)
+        $result = $this->recordEngine->listRecords($module['id'], [
+            'page'     => 1,
+            'per_page' => 50000,
+            'search'   => $req->query('search', ''),
+            'sort_dir' => 'DESC',
+        ], $schema);
+
+        $ext = ($format === 'txt') ? 'txt' : 'csv';
+        $filename = $module['slug'] . '_export_' . date('Ymd_His') . '.' . $ext;
+
+        if ($format === 'txt') {
+            header('Content-Type: text/plain; charset=utf-8');
+        } else {
+            header('Content-Type: text/csv; charset=utf-8');
+        }
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+        
+        // Add BOM for Excel UTF-8 support
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+
+        $delimiter = ($format === 'txt') ? "\t" : ",";
+
+        // Header Row
+        $header = ['Record ID'];
+        foreach ($schema['fields'] as $field) {
+            $header[] = $field['name'];
+        }
+        $header[] = 'Created At';
+        fputcsv($output, $header, $delimiter);
+
+        // Data Rows
+        foreach ($result['records'] as $record) {
+            $row = [$record['id']];
+            foreach ($schema['fields'] as $field) {
+                $val = $record['values'][$field['slug']] ?? '';
+                // Handle complex types if needed
+                if (is_array($val)) $val = json_encode($val);
+                $row[] = $val;
+            }
+            $row[] = $record['created_at'];
+            fputcsv($output, $row, $delimiter);
+        }
+
+        fclose($output);
+        exit;
+    }
+
     // ── Helper ───────────────────────────────────────────────
 
     private function resolveContext(array $params): array

@@ -106,9 +106,12 @@ class DashboardEngine
             'count'     => $this->computeCount($widget, $filters),
             'sum'       => $this->computeAggregate('SUM', $widget, $filters),
             'average'   => $this->computeAggregate('AVG', $widget, $filters),
-            'bar_chart' => $this->computeGrouped($widget, $filters),
-            'pie_chart' => $this->computeGrouped($widget, $filters),
-            default     => ['value' => 0],
+            'bar_chart'   => $this->computeGrouped($widget, $filters),
+            'pie_chart'   => $this->computeGrouped($widget, $filters),
+            'trend_chart' => $this->computeTrend($widget, $filters),
+            'progress_bar'=> $this->computeProgress($widget, $filters),
+            'top_list'    => $this->computeTopList($widget, $filters),
+            default       => ['value' => 0],
         };
     }
 
@@ -178,6 +181,78 @@ class DashboardEngine
     }
 
     /**
+     * Group by Created Date for Line Charts.
+     */
+    private function computeTrend(array $widget, array $filters): array
+    {
+        [$filterSql, $params] = $this->buildFilteredQuery($widget['module_id'], $filters);
+        
+        $sql = "SELECT DATE(created_at) as day, COUNT(*) as count
+                FROM records r {$filterSql}
+                GROUP BY day
+                ORDER BY day ASC
+                LIMIT 30";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        return [
+            'labels' => array_column($rows, 'day'),
+            'data'   => array_map(fn($r) => (int)$r['count'], $rows),
+            'type'   => 'trend_chart',
+        ];
+    }
+
+    /**
+     * Compute Progress towards a goal.
+     */
+    private function computeProgress(array $widget, array $filters): array
+    {
+        $current = $this->computeCount($widget, $filters)['value'];
+        $goal    = (int)($widget['filters']['goal'] ?? 100);
+        
+        return [
+            'value'   => $current,
+            'goal'    => $goal,
+            'percent' => $goal > 0 ? min(100, round(($current / $goal) * 100)) : 0,
+            'type'    => 'progress_bar',
+        ];
+    }
+
+    /**
+     * Top 5 records by a specific numeric field.
+     */
+    private function computeTopList(array $widget, array $filters): array
+    {
+        if (!$widget['field_id']) return ['items' => [], 'type' => 'top_list'];
+        $slug = $this->getFieldSlug((int)$widget['field_id']);
+        if (!$slug) return ['items' => [], 'type' => 'top_list'];
+
+        [$filterSql, $params] = $this->buildFilteredQuery($widget['module_id'], $filters);
+        
+        $sql = "SELECT JSON_UNQUOTE(JSON_EXTRACT(r.data, '$.{$slug}')) as val, r.data
+                FROM records r {$filterSql}
+                ORDER BY CAST(val AS DECIMAL(20,4)) DESC
+                LIMIT 5";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        $items = [];
+        foreach ($rows as $row) {
+            $data = json_decode($row['data'], true);
+            $items[] = [
+                'label' => reset($data), // First field as label
+                'value' => $row['val']
+            ];
+        }
+
+        return ['items' => $items, 'type' => 'top_list'];
+    }
+
+    /**
      * Get a field's slug by its ID.
      */
     private function getFieldSlug(int $fieldId): ?string
@@ -200,6 +275,7 @@ class DashboardEngine
         $sql    = 'WHERE r.module_id = ?';
 
         foreach ($filters as $i => $filter) {
+            if (!is_array($filter)) continue;
             $fieldId  = (int)($filter['field_id'] ?? 0);
             $operator = $filter['operator']   ?? 'equals';
             $value    = $filter['value']       ?? '';

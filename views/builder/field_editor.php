@@ -77,6 +77,62 @@
                 <div class="form-text">Select the module this field should link to.</div>
             </div>
 
+            <!-- Lookup-specific: display field -->
+            <div class="mb-3 <?= $currentType !== 'lookup' ? 'd-none' : '' ?>" id="displayFieldGroup">
+                <label class="form-label small fw-semibold">Display Field <span class="text-danger">*</span></label>
+                <select class="form-select form-select-sm" name="display_field_slug" id="displayFieldSelect">
+                    <option value="">— Select Display Field —</option>
+                    <?php
+                    if ($field && !empty($field['options']['target_module_id'])) {
+                        $targetMod = (new \Engine\ModuleEngine(getDB()))->getSchema((int)$field['options']['target_module_id']);
+                        $currentSlug = $field['options']['display_field_slug'] ?? null;
+                        foreach ($targetMod['fields'] as $tf) {
+                            $sel = ($tf['slug'] === $currentSlug) ? 'selected' : '';
+                            echo "<option value=\"{$tf['slug']}\" {$sel}>" . htmlspecialchars($tf['name']) . "</option>";
+                        }
+                    }
+                    ?>
+                </select>
+                <div class="form-text">Which field from the target module should be used as the label?</div>
+            </div>
+
+            <!-- Formula-specific: formula -->
+            <div class="mb-3 <?= $currentType !== 'formula' ? 'd-none' : '' ?>" id="formulaGroup">
+                <label class="form-label small fw-semibold">Formula <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm" name="formula" id="formulaInput"
+                       placeholder="e.g. {{basic}} * 0.12" 
+                       value="<?= htmlspecialchars($field['options']['formula'] ?? '') ?>">
+                
+                <!-- Visual Formula Builder -->
+                <div class="formula-builder mt-2 p-2 border rounded bg-light">
+                    <div class="mb-2">
+                        <label class="small fw-bold text-muted d-block mb-1">Click to add field:</label>
+                        <div class="d-flex flex-wrap gap-1">
+                            <?php foreach ($module['fields'] as $mf): ?>
+                                <?php if ($field && $field['id'] == $mf['id']) continue; // Don't include self ?>
+                                <button type="button" class="btn btn-xs btn-outline-primary formula-token" 
+                                        data-token="{{<?= $mf['slug'] ?>}}">
+                                    <?= htmlspecialchars($mf['name']) ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="small fw-bold text-muted d-block mb-1">Operators:</label>
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-xs btn-dark formula-token" data-token=" + ">+</button>
+                            <button type="button" class="btn btn-xs btn-dark formula-token" data-token=" - ">-</button>
+                            <button type="button" class="btn btn-xs btn-dark formula-token" data-token=" * ">*</button>
+                            <button type="button" class="btn btn-xs btn-dark formula-token" data-token=" / ">/</button>
+                            <button type="button" class="btn btn-xs btn-dark formula-token" data-token="(">(</button>
+                            <button type="button" class="btn btn-xs btn-dark formula-token" data-token=")">)</button>
+                            <button type="button" class="btn btn-xs btn-outline-danger formula-clear ms-auto">Clear</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-text">Click fields and operators above to build your formula.</div>
+            </div>
+
             <!-- Validation -->
             <div class="mb-3 <?= in_array($currentType, ['number']) ? '' : 'd-none' ?>" id="numValidation">
                 <label class="form-label small fw-semibold">Min / Max Value</label>
@@ -150,11 +206,18 @@
                     <label class="form-check-label small" for="isSearchable">Searchable</label>
                 </div>
             </div>
-            <div class="mb-4">
+            <div class="mb-2">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="show_in_list" id="showInList" value="1"
                            <?= ($field['show_in_list'] ?? true) ? 'checked' : '' ?>>
                     <label class="form-check-label small" for="showInList">Show as column in list</label>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="form-check form-switch">
+                    <input type="checkbox" class="form-check-input" name="show_in_form" id="showInForm" value="1"
+                           <?= ($field['show_in_form'] ?? true) ? 'checked' : '' ?>>
+                    <label class="form-check-label small" for="showInForm">Show in Create/Edit form</label>
                 </div>
             </div>
 
@@ -226,6 +289,8 @@ function updateVisibility() {
     const t = typeSelect.value;
     choicesGrp.classList.toggle('d-none', t !== 'dropdown');
     document.getElementById('lookupGroup').classList.toggle('d-none', t !== 'lookup');
+    document.getElementById('displayFieldGroup').classList.toggle('d-none', t !== 'lookup');
+    document.getElementById('formulaGroup').classList.toggle('d-none', t !== 'formula');
     numVal.classList.toggle('d-none',     t !== 'number');
     txtVal.classList.toggle('d-none',     !['text','textarea'].includes(t));
     updatePreview();
@@ -264,6 +329,55 @@ typeSelect.addEventListener('change', updateVisibility);
 labelInput.addEventListener('input', updatePreview);
 document.querySelector('[name="choices"]')?.addEventListener('input', updatePreview);
 document.getElementById('isRequired').addEventListener('change', updatePreview);
+
+// Lookup AJAX: Load fields when target module changes
+const targetModSelect = document.getElementById('targetModuleSelect');
+const displayFldSelect = document.getElementById('displayFieldSelect');
+
+targetModSelect.addEventListener('change', async function() {
+    const modId = this.value;
+    if (!modId) {
+        displayFldSelect.innerHTML = '<option value="">— Select Display Field —</option>';
+        return;
+    }
+
+    try {
+        const appId = "<?= $app['id'] ?>";
+        const res = await fetch(`<?= APP_URL ?>/apps/${appId}/modules/${modId}/fields/json`);
+        const fields = await res.json();
+        
+        displayFldSelect.innerHTML = '<option value="">— Select Display Field —</option>';
+        fields.forEach(f => {
+            const opt = document.createElement('option');
+            opt.value = f.slug;
+            opt.textContent = f.name;
+            displayFldSelect.appendChild(opt);
+        });
+    } catch (e) {
+        console.error('Failed to load fields', e);
+    }
+});
+
+// Formula Builder Logic
+document.querySelectorAll('.formula-token').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const input = document.getElementById('formulaInput');
+        const token = btn.dataset.token;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        const text = input.value;
+        input.value = text.substring(0, start) + token + text.substring(end);
+        input.focus();
+        // Move cursor after inserted token
+        input.setSelectionRange(start + token.length, start + token.length);
+        updatePreview();
+    });
+});
+
+document.querySelector('.formula-clear')?.addEventListener('click', () => {
+    document.getElementById('formulaInput').value = '';
+    updatePreview();
+});
 
 // Initial preview
 updatePreview();

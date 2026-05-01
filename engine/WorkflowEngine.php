@@ -136,7 +136,7 @@ class WorkflowEngine
 
             match ($action['action_type']) {
                 'send_email'    => $this->actionSendEmail($config, $values, $recordId),
-                'update_field'  => $this->actionUpdateField($config, $recordId),
+                'update_field'  => $this->actionUpdateField($config, $values, $recordId),
                 'notification'  => $this->actionNotification($config, $values, $recordId),
                 default         => null,
             };
@@ -164,12 +164,18 @@ class WorkflowEngine
      * Action: Update a specific field value on the triggering record.
      * Config: {"field_id": 5, "value": "Processed"}
      */
-    private function actionUpdateField(array $config, int $recordId): void
+    private function actionUpdateField(array $config, array $values, int $recordId): void
     {
         $fieldId   = (int)($config['field_id'] ?? 0);
-        $newValue  = $config['value'] ?? '';
+        $rawVal    = $config['value'] ?? '';
 
         if (!$fieldId) return;
+
+        // 1. Interpolate placeholders {{field_slug}}
+        $interpolated = $this->interpolate($rawVal, $values, $recordId);
+
+        // 2. Evaluate as math if it contains operators
+        $newValue = $this->evaluateMath($interpolated);
 
         // Update EAV row
         $stmt = $this->db->prepare(
@@ -178,7 +184,7 @@ class WorkflowEngine
         );
         $stmt->execute([$recordId, $fieldId, $newValue]);
 
-        // Refresh JSON snapshot — fetch all values for the record
+        // Refresh JSON snapshot
         $snap = $this->db->prepare(
             'SELECT f.slug, rv.value FROM record_values rv
              INNER JOIN fields f ON f.id = rv.field_id
@@ -189,6 +195,28 @@ class WorkflowEngine
 
         $this->db->prepare('UPDATE records SET data = ? WHERE id = ?')
                  ->execute([json_encode($data), $recordId]);
+    }
+
+    /**
+     * Simple math evaluator for workflow formulas.
+     * Supports +, -, *, /, and parentheses.
+     * SECURITY: Only allows numbers and basic operators.
+     */
+    private function evaluateMath(string $expression): string
+    {
+        // If it doesn't look like math (contains letters other than numbers/operators), return as-is
+        if (!preg_match('/^[0-9\.\+\-\*\/\(\)\s]+$/', $expression)) {
+            return $expression;
+        }
+
+        try {
+            // Use eval safely by pre-filtering with regex above
+            // We use @ to suppress division by zero or other math errors
+            $result = @eval("return $expression;");
+            return $result !== false ? (string)$result : $expression;
+        } catch (\Throwable $e) {
+            return $expression;
+        }
     }
 
     /**

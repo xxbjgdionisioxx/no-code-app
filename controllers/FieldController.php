@@ -27,7 +27,7 @@ class FieldController extends Controller
     {
         Middleware::auth();
         $app    = $this->appEngine->getApp((int)($params['appId'] ?? 0));
-        $module = $this->moduleEngine->getModule((int)($params['moduleId'] ?? 0));
+        $module = $this->moduleEngine->getSchema((int)($params['moduleId'] ?? 0));
         $this->view('builder.field_editor', [
             'title'  => 'Add Field',
             'app'    => $app,
@@ -71,14 +71,17 @@ class FieldController extends Controller
             'field_type'    => $req->post('field_type', 'text'),
             'is_required'   => (int)(bool)$req->post('is_required'),
             'is_unique'     => (int)(bool)$req->post('is_unique'),
-            'is_searchable' => (int)(bool)$req->post('is_searchable', '1'),
-            'show_in_list'  => (int)(bool)$req->post('show_in_list', '1'),
+            'is_searchable' => (int)(bool)$req->post('is_searchable'),
+            'show_in_list'  => (int)(bool)$req->post('show_in_list'),
+            'show_in_form'  => (int)(bool)$req->post('show_in_form'),
             'default_value' => $req->post('default_value'),
             'placeholder'   => $req->post('placeholder'),
             'help_text'     => $req->post('help_text'),
             'validation'    => $validation,
             'options'       => array_merge($options, [
-                'target_module_id' => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null
+                'target_module_id'   => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null,
+                'display_field_slug' => $req->post('display_field_slug'),
+                'formula'            => $req->post('formula')
             ]),
             'sort_order'    => (int)$req->post('sort_order', 0),
         ]);
@@ -98,7 +101,7 @@ class FieldController extends Controller
         $fieldId  = (int)($params['id']       ?? 0);
 
         $app    = $this->appEngine->getApp($appId);
-        $module = $this->moduleEngine->getModule($moduleId);
+        $module = $this->moduleEngine->getSchema($moduleId);
         $field  = $this->fieldEngine->getField($fieldId);
 
         $this->view('builder.field_editor', [
@@ -143,14 +146,17 @@ class FieldController extends Controller
             'field_type'    => $req->post('field_type', 'text'),
             'is_required'   => (int)(bool)$req->post('is_required'),
             'is_unique'     => (int)(bool)$req->post('is_unique'),
-            'is_searchable' => (int)(bool)$req->post('is_searchable', '1'),
-            'show_in_list'  => (int)(bool)$req->post('show_in_list', '1'),
+            'is_searchable' => (int)(bool)$req->post('is_searchable'),
+            'show_in_list'  => (int)(bool)$req->post('show_in_list'),
+            'show_in_form'  => (int)(bool)$req->post('show_in_form'),
             'default_value' => $req->post('default_value'),
             'placeholder'   => $req->post('placeholder'),
             'help_text'     => $req->post('help_text'),
             'validation'    => $validation,
             'options'       => array_merge($options, [
-                'target_module_id' => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null
+                'target_module_id'   => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null,
+                'display_field_slug' => $req->post('display_field_slug'),
+                'formula'            => $req->post('formula')
             ]),
         ]);
 
@@ -177,5 +183,13 @@ class FieldController extends Controller
             $this->fieldEngine->reorderFields($ids);
         }
         $this->json(['success' => true]);
+    }
+
+    public function fieldsJson(Request $req, array $params): void
+    {
+        Middleware::auth();
+        $moduleId = (int)($params['moduleId'] ?? 0);
+        $schema   = $this->moduleEngine->getSchema($moduleId);
+        $this->json($schema['fields']);
     }
 }

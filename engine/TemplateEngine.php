@@ -62,6 +62,13 @@ class TemplateEngine
                 'icon'        => 'bi-truck',
                 'color'       => '#14b8a6',
             ],
+            [
+                'id'          => 'payroll',
+                'name'        => 'Payroll System',
+                'description' => 'Complete payroll management with employees, attendance, and payslips.',
+                'icon'        => 'bi-cash-coin',
+                'color'       => '#10b981',
+            ],
         ];
     }
 
@@ -121,12 +128,18 @@ class TemplateEngine
             $fStmt = $this->db->prepare("INSERT INTO fields (module_id, name, slug, field_type, is_required, is_unique, is_searchable, show_in_list, options, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             foreach ($data['fields'] as $f) {
                 if (!isset($moduleMap[$f['module_id']])) continue;
+
+                $options = $f['options'] ?? [];
+                if ($f['type'] === 'lookup' && isset($options['target_module_id'])) {
+                    $options['target_module_id'] = $moduleMap[$options['target_module_id']] ?? null;
+                }
+
                 $fStmt->execute([
                     $moduleMap[$f['module_id']],
                     $f['name'], $f['slug'], $f['type'],
                     $f['required'] ?? 0, $f['unique'] ?? 0,
                     $f['searchable'] ?? 0, $f['in_list'] ?? 1,
-                    isset($f['options']) ? json_encode($f['options']) : null,
+                    !empty($options) ? json_encode($options) : null,
                     $f['sort'] ?? 0
                 ]);
                 if (isset($f['id'])) {
