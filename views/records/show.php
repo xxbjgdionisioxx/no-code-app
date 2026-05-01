@@ -7,9 +7,15 @@
         <i class="bi bi-arrow-left"></i> Back
     </a>
     <div>
-        <h1 class="h4 fw-bold mb-0">
+        <h1 class="h4 fw-bold mb-0 d-flex align-items-center">
             <i class="bi <?= htmlspecialchars($module['icon']) ?> me-2"></i>
             <?= htmlspecialchars($module['name']) ?> — Record #<?= $record['id'] ?>
+            <?php if (!empty($user['is_admin'])): ?>
+            <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/modules/<?= $module['id'] ?>/builder"
+               class="btn btn-sm btn-outline-secondary ms-3" title="Open Builder">
+                <i class="bi bi-tools me-1"></i> Builder
+            </a>
+            <?php endif; ?>
         </h1>
         <p class="text-muted small mb-0">
             Created <?= date('F j, Y \a\t g:ia', strtotime($record['created_at'])) ?>

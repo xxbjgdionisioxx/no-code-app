@@ -8,7 +8,15 @@
         <i class="bi bi-arrow-left"></i>
     </a>
     <div>
-        <h1 class="h4 fw-bold mb-0">Edit <?= htmlspecialchars($module['name']) ?> #<?= $record['id'] ?></h1>
+        <h1 class="h4 fw-bold mb-0 d-flex align-items-center">
+            Edit <?= htmlspecialchars($module['name']) ?> #<?= $record['id'] ?>
+            <?php if (!empty($user['is_admin'])): ?>
+            <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/modules/<?= $module['id'] ?>/builder"
+               class="btn btn-sm btn-outline-secondary ms-3" title="Open Builder">
+                <i class="bi bi-tools me-1"></i> Builder
+            </a>
+            <?php endif; ?>
+        </h1>
         <p class="text-muted small mb-0">Update the fields below.</p>
     </div>
 </div>

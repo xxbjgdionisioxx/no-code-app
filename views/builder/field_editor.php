@@ -7,19 +7,17 @@
             <?= $field ? 'Edit Field' : 'New Field' ?>
         </div>
 
-        <form method="POST"
-              action="<?= $field
-                ? APP_URL."/apps/{$app['id']}/modules/{$module['id']}/fields/{$field['id']}"
-                : APP_URL."/apps/{$app['id']}/modules/{$module['id']}/fields"
-              ?>"
-              class="p-3" id="fieldForm">
+        <form method="POST" action="<?= $field
+            ? APP_URL . "/apps/{$app['id']}/modules/{$module['id']}/fields/{$field['id']}"
+            : APP_URL . "/apps/{$app['id']}/modules/{$module['id']}/fields"
+            ?>" class="p-3" id="fieldForm">
             <?= \Core\CSRF::field() ?>
 
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Field Label <span class="text-danger">*</span></label>
                 <input type="text" class="form-control form-control-sm" name="name" id="fieldLabel"
-                       value="<?= htmlspecialchars($field['name'] ?? '') ?>"
-                       placeholder="e.g., Product Name" required autofocus>
+                    value="<?= htmlspecialchars($field['name'] ?? '') ?>" placeholder="e.g., Product Name" required
+                    autofocus>
                 <div class="form-text">Auto-generates a slug for database storage.</div>
             </div>
 
@@ -28,22 +26,22 @@
                 <select class="form-select form-select-sm" name="field_type" id="fieldTypeSelect">
                     <?php
                     $typeLabels = [
-                        'text'     => '📝 Text',
+                        'text' => '📝 Text',
                         'textarea' => '📄 Textarea',
-                        'number'   => '🔢 Number',
-                        'date'     => '📅 Date',
-                        'email'    => '✉️ Email',
+                        'number' => '🔢 Number',
+                        'date' => '📅 Date',
+                        'email' => '✉️ Email',
                         'dropdown' => '📋 Dropdown',
                         'checkbox' => '☑️ Checkbox',
-                        'file'     => '📎 File Upload',
-                        'lookup'   => '🔗 Lookup (Link)',
+                        'file' => '📎 File Upload',
+                        'lookup' => '🔗 Lookup (Link)',
                     ];
                     $currentType = $field['field_type'] ?? 'text';
                     foreach ($types as $t):
-                    ?>
-                    <option value="<?= $t ?>" <?= $t === $currentType ? 'selected':'' ?>>
-                        <?= $typeLabels[$t] ?? ucfirst($t) ?>
-                    </option>
+                        ?>
+                        <option value="<?= $t ?>" <?= $t === $currentType ? 'selected' : '' ?>>
+                            <?= $typeLabels[$t] ?? ucfirst($t) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -52,13 +50,13 @@
             <div class="mb-3 <?= $currentType !== 'dropdown' ? 'd-none' : '' ?>" id="choicesGroup">
                 <label class="form-label small fw-semibold">Choices</label>
                 <textarea class="form-control form-control-sm" name="choices" rows="5"
-                          placeholder="One per line:&#10;Option A&#10;Option B&#10;Option C"><?php
+                    placeholder="One per line:&#10;Option A&#10;Option B&#10;Option C"><?php
                     if ($field && !empty($field['options']['choices'])) {
                         echo htmlspecialchars(implode("\n", $field['options']['choices']));
                     }
-                ?></textarea>
+                    ?></textarea>
             </div>
-            
+
             <!-- Lookup-specific: target module -->
             <div class="mb-3 <?= $currentType !== 'lookup' ? 'd-none' : '' ?>" id="lookupGroup">
                 <label class="form-label small fw-semibold">Target Module <span class="text-danger">*</span></label>
@@ -68,10 +66,10 @@
                     $allMods = (new \Engine\ModuleEngine(getDB()))->listModules($app['id']);
                     $targetId = $field['options']['target_module_id'] ?? null;
                     foreach ($allMods as $m):
-                    ?>
-                    <option value="<?= $m['id'] ?>" <?= $m['id'] == $targetId ? 'selected':'' ?>>
-                        <?= htmlspecialchars($m['name']) ?>
-                    </option>
+                        ?>
+                        <option value="<?= $m['id'] ?>" <?= $m['id'] == $targetId ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($m['name']) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
                 <div class="form-text">Select the module this field should link to.</div>
@@ -84,7 +82,7 @@
                     <option value="">— Select Display Field —</option>
                     <?php
                     if ($field && !empty($field['options']['target_module_id'])) {
-                        $targetMod = (new \Engine\ModuleEngine(getDB()))->getSchema((int)$field['options']['target_module_id']);
+                        $targetMod = (new \Engine\ModuleEngine(getDB()))->getSchema((int) $field['options']['target_module_id']);
                         $currentSlug = $field['options']['display_field_slug'] ?? null;
                         foreach ($targetMod['fields'] as $tf) {
                             $sel = ($tf['slug'] === $currentSlug) ? 'selected' : '';
@@ -100,18 +98,19 @@
             <div class="mb-3 <?= $currentType !== 'formula' ? 'd-none' : '' ?>" id="formulaGroup">
                 <label class="form-label small fw-semibold">Formula <span class="text-danger">*</span></label>
                 <input type="text" class="form-control form-control-sm" name="formula" id="formulaInput"
-                       placeholder="e.g. {{basic}} * 0.12" 
-                       value="<?= htmlspecialchars($field['options']['formula'] ?? '') ?>">
-                
+                    placeholder="e.g. {{basic}} * 0.12"
+                    value="<?= htmlspecialchars($field['options']['formula'] ?? '') ?>" autocomplete="off">
+
                 <!-- Visual Formula Builder -->
-                <div class="formula-builder mt-2 p-2 border rounded bg-light">
+                <div class="formula-builder mt-2 p-2 border rounded">
                     <div class="mb-2">
                         <label class="small fw-bold text-muted d-block mb-1">Click to add field:</label>
                         <div class="d-flex flex-wrap gap-1">
                             <?php foreach ($module['fields'] as $mf): ?>
-                                <?php if ($field && $field['id'] == $mf['id']) continue; // Don't include self ?>
-                                <button type="button" class="btn btn-xs btn-outline-primary formula-token" 
-                                        data-token="{{<?= $mf['slug'] ?>}}">
+                                <?php if ($field && $field['id'] == $mf['id'])
+                                    continue; // Don't include self ?>
+                                <button type="button" class="btn btn-xs btn-outline-primary formula-token"
+                                    data-token="{{<?= $mf['slug'] ?>}}">
                                     <?= htmlspecialchars($mf['name']) ?>
                                 </button>
                             <?php endforeach; ?>
@@ -126,7 +125,8 @@
                             <button type="button" class="btn btn-xs btn-dark formula-token" data-token=" / ">/</button>
                             <button type="button" class="btn btn-xs btn-dark formula-token" data-token="(">(</button>
                             <button type="button" class="btn btn-xs btn-dark formula-token" data-token=")">)</button>
-                            <button type="button" class="btn btn-xs btn-outline-danger formula-clear ms-auto">Clear</button>
+                            <button type="button"
+                                class="btn btn-xs btn-outline-danger formula-clear ms-auto">Clear</button>
                         </div>
                     </div>
                 </div>
@@ -138,26 +138,28 @@
                 <label class="form-label small fw-semibold">Min / Max Value</label>
                 <div class="row g-2">
                     <div class="col">
-                        <input type="number" class="form-control form-control-sm" name="v_min"
-                               placeholder="Min" value="<?= htmlspecialchars($field['validation']['min'] ?? '') ?>">
+                        <input type="number" class="form-control form-control-sm" name="v_min" placeholder="Min"
+                            value="<?= htmlspecialchars($field['validation']['min'] ?? '') ?>">
                     </div>
                     <div class="col">
-                        <input type="number" class="form-control form-control-sm" name="v_max"
-                               placeholder="Max" value="<?= htmlspecialchars($field['validation']['max'] ?? '') ?>">
+                        <input type="number" class="form-control form-control-sm" name="v_max" placeholder="Max"
+                            value="<?= htmlspecialchars($field['validation']['max'] ?? '') ?>">
                     </div>
                 </div>
             </div>
 
-            <div class="mb-3 <?= in_array($currentType, ['text','textarea']) ? '' : 'd-none' ?>" id="textValidation">
+            <div class="mb-3 <?= in_array($currentType, ['text', 'textarea']) ? '' : 'd-none' ?>" id="textValidation">
                 <label class="form-label small fw-semibold">Min / Max Length</label>
                 <div class="row g-2">
                     <div class="col">
                         <input type="number" class="form-control form-control-sm" name="v_min_length"
-                               placeholder="Min chars" value="<?= htmlspecialchars($field['validation']['min_length'] ?? '') ?>">
+                            placeholder="Min chars"
+                            value="<?= htmlspecialchars($field['validation']['min_length'] ?? '') ?>">
                     </div>
                     <div class="col">
                         <input type="number" class="form-control form-control-sm" name="v_max_length"
-                               placeholder="Max chars" value="<?= htmlspecialchars($field['validation']['max_length'] ?? '') ?>">
+                            placeholder="Max chars"
+                            value="<?= htmlspecialchars($field['validation']['max_length'] ?? '') ?>">
                     </div>
                 </div>
             </div>
@@ -165,22 +167,20 @@
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Placeholder Text</label>
                 <input type="text" class="form-control form-control-sm" name="placeholder"
-                       value="<?= htmlspecialchars($field['placeholder'] ?? '') ?>"
-                       placeholder="Hint shown inside the input...">
+                    value="<?= htmlspecialchars($field['placeholder'] ?? '') ?>"
+                    placeholder="Hint shown inside the input...">
             </div>
 
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Help Text</label>
                 <input type="text" class="form-control form-control-sm" name="help_text"
-                       value="<?= htmlspecialchars($field['help_text'] ?? '') ?>"
-                       placeholder="Shown below the field...">
+                    value="<?= htmlspecialchars($field['help_text'] ?? '') ?>" placeholder="Shown below the field...">
             </div>
 
             <div class="mb-3">
                 <label class="form-label small fw-semibold">Default Value</label>
                 <input type="text" class="form-control form-control-sm" name="default_value"
-                       value="<?= htmlspecialchars($field['default_value'] ?? '') ?>"
-                       placeholder="Pre-filled value...">
+                    value="<?= htmlspecialchars($field['default_value'] ?? '') ?>" placeholder="Pre-filled value...">
             </div>
 
             <hr>
@@ -188,35 +188,35 @@
             <div class="mb-2">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="is_required" id="isRequired" value="1"
-                           <?= ($field['is_required'] ?? false) ? 'checked' : '' ?>>
+                        <?= ($field['is_required'] ?? false) ? 'checked' : '' ?>>
                     <label class="form-check-label small" for="isRequired">Required field</label>
                 </div>
             </div>
             <div class="mb-2">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="is_unique" id="isUnique" value="1"
-                           <?= ($field['is_unique'] ?? false) ? 'checked' : '' ?>>
+                        <?= ($field['is_unique'] ?? false) ? 'checked' : '' ?>>
                     <label class="form-check-label small" for="isUnique">Must be unique</label>
                 </div>
             </div>
             <div class="mb-2">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="is_searchable" id="isSearchable" value="1"
-                           <?= ($field['is_searchable'] ?? true) ? 'checked' : '' ?>>
+                        <?= ($field['is_searchable'] ?? true) ? 'checked' : '' ?>>
                     <label class="form-check-label small" for="isSearchable">Searchable</label>
                 </div>
             </div>
             <div class="mb-2">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="show_in_list" id="showInList" value="1"
-                           <?= ($field['show_in_list'] ?? true) ? 'checked' : '' ?>>
+                        <?= ($field['show_in_list'] ?? true) ? 'checked' : '' ?>>
                     <label class="form-check-label small" for="showInList">Show as column in list</label>
                 </div>
             </div>
             <div class="mb-4">
                 <div class="form-check form-switch">
                     <input type="checkbox" class="form-check-input" name="show_in_form" id="showInForm" value="1"
-                           <?= ($field['show_in_form'] ?? true) ? 'checked' : '' ?>>
+                        <?= ($field['show_in_form'] ?? true) ? 'checked' : '' ?>>
                     <label class="form-check-label small" for="showInForm">Show in Create/Edit form</label>
                 </div>
             </div>
@@ -226,14 +226,13 @@
                     <i class="bi bi-save me-1"></i> <?= $field ? 'Save Changes' : 'Add Field' ?>
                 </button>
                 <?php if ($field): ?>
-                <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/modules/<?= $module['id'] ?>/fields/<?= $field['id'] ?>/delete"
-                   class="btn btn-outline-danger btn-sm"
-                   data-confirm="Delete this field and all associated data?">
-                    <i class="bi bi-trash"></i>
-                </a>
+                    <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/modules/<?= $module['id'] ?>/fields/<?= $field['id'] ?>/delete"
+                        class="btn btn-outline-danger btn-sm" data-confirm="Delete this field and all associated data?">
+                        <i class="bi bi-trash"></i>
+                    </a>
                 <?php endif; ?>
                 <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/modules/<?= $module['id'] ?>/builder"
-                   class="btn btn-outline-secondary btn-sm">Cancel</a>
+                    class="btn btn-outline-secondary btn-sm">Cancel</a>
             </div>
         </form>
     </div>
@@ -279,106 +278,106 @@
 </div>
 
 <script>
-const typeSelect = document.getElementById('fieldTypeSelect');
-const choicesGrp = document.getElementById('choicesGroup');
-const numVal     = document.getElementById('numValidation');
-const txtVal     = document.getElementById('textValidation');
-const labelInput = document.getElementById('fieldLabel');
+    const typeSelect = document.getElementById('fieldTypeSelect');
+    const choicesGrp = document.getElementById('choicesGroup');
+    const numVal = document.getElementById('numValidation');
+    const txtVal = document.getElementById('textValidation');
+    const labelInput = document.getElementById('fieldLabel');
 
-function updateVisibility() {
-    const t = typeSelect.value;
-    choicesGrp.classList.toggle('d-none', t !== 'dropdown');
-    document.getElementById('lookupGroup').classList.toggle('d-none', t !== 'lookup');
-    document.getElementById('displayFieldGroup').classList.toggle('d-none', t !== 'lookup');
-    document.getElementById('formulaGroup').classList.toggle('d-none', t !== 'formula');
-    numVal.classList.toggle('d-none',     t !== 'number');
-    txtVal.classList.toggle('d-none',     !['text','textarea'].includes(t));
-    updatePreview();
-}
-
-function updatePreview() {
-    const label = labelInput.value || 'Field Label';
-    const type  = typeSelect.value;
-    const req   = document.getElementById('isRequired').checked;
-
-    let input = '';
-    if (type === 'textarea') {
-        input = `<textarea class="form-control" placeholder="Enter ${label.toLowerCase()}..." rows="3" disabled></textarea>`;
-    } else if (type === 'dropdown') {
-        const choices = document.querySelector('[name="choices"]')?.value.split('\n').filter(Boolean) || [];
-        input = `<select class="form-select" disabled><option>— Select —</option>${choices.map(c=>`<option>${c}</option>`).join('')}</select>`;
-    } else if (type === 'checkbox') {
-        input = `<div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Yes</label></div>`;
-    } else if (type === 'file') {
-        input = `<input type="file" class="form-control" disabled>`;
-    } else if (type === 'lookup') {
-        input = `<select class="form-select" disabled><option>— Select Linked Record —</option></select>`;
-    } else {
-        input = `<input type="${type === 'email' ? 'email' : type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'}" class="form-control" placeholder="Enter ${label.toLowerCase()}..." disabled>`;
+    function updateVisibility() {
+        const t = typeSelect.value;
+        choicesGrp.classList.toggle('d-none', t !== 'dropdown');
+        document.getElementById('lookupGroup').classList.toggle('d-none', t !== 'lookup');
+        document.getElementById('displayFieldGroup').classList.toggle('d-none', t !== 'lookup');
+        document.getElementById('formulaGroup').classList.toggle('d-none', t !== 'formula');
+        numVal.classList.toggle('d-none', t !== 'number');
+        txtVal.classList.toggle('d-none', !['text', 'textarea'].includes(t));
+        updatePreview();
     }
 
-    document.getElementById('liveFieldPreview').innerHTML = `
+    function updatePreview() {
+        const label = labelInput.value || 'Field Label';
+        const type = typeSelect.value;
+        const req = document.getElementById('isRequired').checked;
+
+        let input = '';
+        if (type === 'textarea') {
+            input = `<textarea class="form-control" placeholder="Enter ${label.toLowerCase()}..." rows="3" disabled></textarea>`;
+        } else if (type === 'dropdown') {
+            const choices = document.querySelector('[name="choices"]')?.value.split('\n').filter(Boolean) || [];
+            input = `<select class="form-select" disabled><option>— Select —</option>${choices.map(c => `<option>${c}</option>`).join('')}</select>`;
+        } else if (type === 'checkbox') {
+            input = `<div class="form-check"><input type="checkbox" class="form-check-input" disabled><label class="form-check-label">Yes</label></div>`;
+        } else if (type === 'file') {
+            input = `<input type="file" class="form-control" disabled>`;
+        } else if (type === 'lookup') {
+            input = `<select class="form-select" disabled><option>— Select Linked Record —</option></select>`;
+        } else {
+            input = `<input type="${type === 'email' ? 'email' : type === 'number' ? 'number' : type === 'date' ? 'date' : 'text'}" class="form-control" placeholder="Enter ${label.toLowerCase()}..." disabled>`;
+        }
+
+        document.getElementById('liveFieldPreview').innerHTML = `
         <div class="mb-3 field-group">
             <label class="form-label fw-semibold">${label}${req ? ' <span class="text-danger">*</span>' : ''}</label>
             ${input}
         </div>
     `;
-}
-
-typeSelect.addEventListener('change', updateVisibility);
-labelInput.addEventListener('input', updatePreview);
-document.querySelector('[name="choices"]')?.addEventListener('input', updatePreview);
-document.getElementById('isRequired').addEventListener('change', updatePreview);
-
-// Lookup AJAX: Load fields when target module changes
-const targetModSelect = document.getElementById('targetModuleSelect');
-const displayFldSelect = document.getElementById('displayFieldSelect');
-
-targetModSelect.addEventListener('change', async function() {
-    const modId = this.value;
-    if (!modId) {
-        displayFldSelect.innerHTML = '<option value="">— Select Display Field —</option>';
-        return;
     }
 
-    try {
-        const appId = "<?= $app['id'] ?>";
-        const res = await fetch(`<?= APP_URL ?>/apps/${appId}/modules/${modId}/fields/json`);
-        const fields = await res.json();
-        
-        displayFldSelect.innerHTML = '<option value="">— Select Display Field —</option>';
-        fields.forEach(f => {
-            const opt = document.createElement('option');
-            opt.value = f.slug;
-            opt.textContent = f.name;
-            displayFldSelect.appendChild(opt);
+    typeSelect.addEventListener('change', updateVisibility);
+    labelInput.addEventListener('input', updatePreview);
+    document.querySelector('[name="choices"]')?.addEventListener('input', updatePreview);
+    document.getElementById('isRequired').addEventListener('change', updatePreview);
+
+    // Lookup AJAX: Load fields when target module changes
+    const targetModSelect = document.getElementById('targetModuleSelect');
+    const displayFldSelect = document.getElementById('displayFieldSelect');
+
+    targetModSelect.addEventListener('change', async function () {
+        const modId = this.value;
+        if (!modId) {
+            displayFldSelect.innerHTML = '<option value="">— Select Display Field —</option>';
+            return;
+        }
+
+        try {
+            const appId = "<?= $app['id'] ?>";
+            const res = await fetch(`<?= APP_URL ?>/apps/${appId}/modules/${modId}/fields/json`);
+            const fields = await res.json();
+
+            displayFldSelect.innerHTML = '<option value="">— Select Display Field —</option>';
+            fields.forEach(f => {
+                const opt = document.createElement('option');
+                opt.value = f.slug;
+                opt.textContent = f.name;
+                displayFldSelect.appendChild(opt);
+            });
+        } catch (e) {
+            console.error('Failed to load fields', e);
+        }
+    });
+
+    // Formula Builder Logic
+    document.querySelectorAll('.formula-token').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById('formulaInput');
+            const token = btn.dataset.token;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            input.value = text.substring(0, start) + token + text.substring(end);
+            input.focus();
+            // Move cursor after inserted token
+            input.setSelectionRange(start + token.length, start + token.length);
+            updatePreview();
         });
-    } catch (e) {
-        console.error('Failed to load fields', e);
-    }
-});
+    });
 
-// Formula Builder Logic
-document.querySelectorAll('.formula-token').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const input = document.getElementById('formulaInput');
-        const token = btn.dataset.token;
-        const start = input.selectionStart;
-        const end = input.selectionEnd;
-        const text = input.value;
-        input.value = text.substring(0, start) + token + text.substring(end);
-        input.focus();
-        // Move cursor after inserted token
-        input.setSelectionRange(start + token.length, start + token.length);
+    document.querySelector('.formula-clear')?.addEventListener('click', () => {
+        document.getElementById('formulaInput').value = '';
         updatePreview();
     });
-});
 
-document.querySelector('.formula-clear')?.addEventListener('click', () => {
-    document.getElementById('formulaInput').value = '';
+    // Initial preview
     updatePreview();
-});
-
-// Initial preview
-updatePreview();
 </script>
