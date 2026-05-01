@@ -1,0 +1,31 @@
+Options -Indexes
+
+RewriteEngine On
+
+# Serve existing files and directories directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Route everything else through index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Deny access to sensitive directories
+<FilesMatch "\.(php)$">
+    <RequireAll>
+        Require all granted
+    </RequireAll>
+</FilesMatch>
+
+# Block direct access to config, engine, core, storage
+RedirectMatch 403 ^/config/.*$
+RedirectMatch 403 ^/engine/.*$
+RedirectMatch 403 ^/core/.*$
+RedirectMatch 403 ^/storage/.*$

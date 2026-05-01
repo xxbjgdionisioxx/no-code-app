@@ -1,0 +1,218 @@
+/* ============================================================
+   AppForge — Builder-specific Stylesheet
+   Three-panel layout for visual module and field builders
+   ============================================================ */
+
+/* ── Builder Body ───────────────────────────────────────────── */
+.builder-body {
+    background: #080c14;
+    overflow: hidden;
+}
+
+.builder-topbar {
+    background: #0d1117;
+    border-bottom: 1px solid #1e2d47;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* ── Three-Panel Layout ─────────────────────────────────────── */
+.builder-layout {
+    height: calc(100vh - 52px);
+    overflow: hidden;
+}
+
+.builder-panels {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ── Panel Styles ───────────────────────────────────────────── */
+.builder-panel-left,
+.builder-panel-center,
+.builder-panel-right {
+    height: 100%;
+    overflow-y: auto;
+    border-right: 1px solid #1e2d47;
+}
+
+.builder-panel-right { border-right: none; }
+
+.builder-panel-left  { background: #0d1117; }
+.builder-panel-center { background: #0f1623; }
+.builder-panel-right  { background: #0d1117; }
+
+.panel-header {
+    padding: 0.875rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #64748b;
+    background: #090d17;
+    border-bottom: 1px solid #1e2d47;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* ── Field Canvas ───────────────────────────────────────────── */
+.field-canvas {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: calc(100% - 48px);
+}
+
+.field-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #111827;
+    border: 1px solid #1e2d47;
+    border-radius: 10px;
+    padding: 0.75rem 0.875rem;
+    transition: all 0.15s ease;
+    cursor: grab;
+    user-select: none;
+}
+
+.field-card:hover {
+    border-color: #6366f1;
+    background: #141a2e;
+    box-shadow: 0 2px 12px rgba(99,102,241,0.15);
+}
+
+.field-card.dragging {
+    opacity: 0.4;
+    cursor: grabbing;
+}
+
+.field-card-drag {
+    color: #334155;
+    font-size: 1rem;
+    cursor: grab;
+    flex-shrink: 0;
+}
+
+.field-card-drag:hover { color: #64748b; }
+
+.field-card-type { flex-shrink: 0; }
+
+.field-card-body { flex-grow: 1; min-width: 0; }
+
+.field-card-name {
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #e2e8f0;
+}
+
+.field-card-meta {
+    font-size: 0.72rem;
+    margin-top: 2px;
+}
+
+.field-card-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.field-card:hover .field-card-actions { opacity: 1; }
+
+/* ── Empty Panel State ──────────────────────────────────────── */
+.empty-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60%;
+    color: #334155;
+}
+
+/* ── Preview Device ─────────────────────────────────────────── */
+.preview-device {
+    background: #0d1624;
+    border-radius: 12px;
+    margin: 1rem;
+    border: 1px solid #1e2d47;
+    min-height: 300px;
+}
+
+/* ── Small Icon Picker (in builder panels) ──────────────────── */
+.icon-picker-sm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 0.4rem;
+    background: #090d17;
+    border: 1px solid #1e2d47;
+    border-radius: 8px;
+}
+
+.icon-opt-sm {
+    width: 30px; height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #475569;
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.icon-opt-sm:hover,
+.icon-opt-sm.active {
+    background: rgba(99,102,241,0.15);
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+/* ── Builder Form Controls ──────────────────────────────────── */
+.builder-panel-left .form-control,
+.builder-panel-left .form-select {
+    background: #090d17 !important;
+    border-color: #1e2d47 !important;
+    font-size: 0.825rem;
+}
+
+.builder-panel-left .form-label.small,
+.builder-panel-left .form-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 0.3rem;
+}
+
+/* ── Responsive Builder ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .builder-panels {
+        grid-template-columns: 260px 1fr;
+    }
+    .builder-panel-right { display: none; }
+}
+
+@media (max-width: 768px) {
+    .builder-panels {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+    .builder-panel-left { max-height: 50vh; }
+    .builder-panel-right { display: none; }
+}
