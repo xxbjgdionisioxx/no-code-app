@@ -123,11 +123,13 @@ abstract class Controller
     /**
      * Require authenticated user — redirect to login if not.
      */
-    protected function requireAuth(): array
+    protected function requireAuth(bool $showFlash = true): array
     {
         $user = Session::get('user');
         if (!$user) {
-            $this->flash('error', 'Please log in to continue.');
+            if ($showFlash) {
+                $this->flash('error', 'Please log in to continue.');
+            }
             $this->redirect('/login');
         }
         return $user;

@@ -20,7 +20,7 @@ class AppController extends Controller
 
     public function index(Request $req): void
     {
-        $user = Middleware::auth();
+        $user = Middleware::auth(false);
         $apps = $this->appEngine->listApps($user['id'], $user['is_admin']);
         $this->view('apps.index', ['title' => 'My Apps', 'apps' => $apps, 'user' => $user]);
     }

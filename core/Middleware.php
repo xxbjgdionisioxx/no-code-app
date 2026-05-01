@@ -14,13 +14,15 @@ class Middleware
      * Ensure the request comes from an authenticated user.
      * Redirects to /login with a flash message if not.
      */
-    public static function auth(): array
+    public static function auth(bool $showFlash = true): array
     {
         Session::start();
         $user = Session::get('user');
 
         if (!$user || empty($user['id'])) {
-            Session::set('flash', ['type' => 'error', 'message' => 'Please log in to continue.']);
+            if ($showFlash) {
+                Session::set('flash', ['type' => 'error', 'message' => 'Please log in to continue.']);
+            }
             header('Location: ' . APP_URL . '/login');
             exit;
         }
