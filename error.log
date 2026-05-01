@@ -1,0 +1,56 @@
+2026-04-30 08:42:56 | SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE rv.field_id = ?
+                GROUP BY rv.value
+                ORDER BY' at line 4
+#0 C:\laragon\www\no-code-app\engine\DashboardEngine.php(147): PDO->prepare('SELECT rv.value...')
+#1 C:\laragon\www\no-code-app\engine\DashboardEngine.php(90): Engine\DashboardEngine->computeGrouped(Array, Array)
+#2 C:\laragon\www\no-code-app\controllers\DashboardController.php(112): Engine\DashboardEngine->compute(Array)
+#3 C:\laragon\www\no-code-app\core\Router.php(132): Controllers\DashboardController->widgetData(Object(Core\Request), Array)
+#4 C:\laragon\www\no-code-app\core\Router.php(78): Core\Router->callHandler('DashboardContro...', Array, Object(Core\Request))
+#5 C:\laragon\www\no-code-app\index.php(64): Core\Router->dispatch(Object(Core\Request))
+#6 {main}
+2026-04-30 08:42:56 | SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE rv.field_id = ?
+                GROUP BY rv.value
+                ORDER BY' at line 4
+#0 C:\laragon\www\no-code-app\engine\DashboardEngine.php(147): PDO->prepare('SELECT rv.value...')
+#1 C:\laragon\www\no-code-app\engine\DashboardEngine.php(89): Engine\DashboardEngine->computeGrouped(Array, Array)
+#2 C:\laragon\www\no-code-app\controllers\DashboardController.php(112): Engine\DashboardEngine->compute(Array)
+#3 C:\laragon\www\no-code-app\core\Router.php(132): Controllers\DashboardController->widgetData(Object(Core\Request), Array)
+#4 C:\laragon\www\no-code-app\core\Router.php(78): Core\Router->callHandler('DashboardContro...', Array, Object(Core\Request))
+#5 C:\laragon\www\no-code-app\index.php(64): Core\Router->dispatch(Object(Core\Request))
+#6 {main}
+2026-04-30 08:42:56 | SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE rv.field_id = ?' at line 4
+#0 C:\laragon\www\no-code-app\engine\DashboardEngine.php(121): PDO->prepare('SELECT AVG(CAST...')
+#1 C:\laragon\www\no-code-app\engine\DashboardEngine.php(88): Engine\DashboardEngine->computeAggregate('AVG', Array, Array)
+#2 C:\laragon\www\no-code-app\controllers\DashboardController.php(112): Engine\DashboardEngine->compute(Array)
+#3 C:\laragon\www\no-code-app\core\Router.php(132): Controllers\DashboardController->widgetData(Object(Core\Request), Array)
+#4 C:\laragon\www\no-code-app\core\Router.php(78): Core\Router->callHandler('DashboardContro...', Array, Object(Core\Request))
+#5 C:\laragon\www\no-code-app\index.php(64): Core\Router->dispatch(Object(Core\Request))
+#6 {main}
+2026-04-30 08:43:09 | SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE rv.field_id = ?
+                GROUP BY rv.value
+                ORDER BY' at line 4
+#0 C:\laragon\www\no-code-app\engine\DashboardEngine.php(147): PDO->prepare('SELECT rv.value...')
+#1 C:\laragon\www\no-code-app\engine\DashboardEngine.php(90): Engine\DashboardEngine->computeGrouped(Array, Array)
+#2 C:\laragon\www\no-code-app\controllers\DashboardController.php(112): Engine\DashboardEngine->compute(Array)
+#3 C:\laragon\www\no-code-app\core\Router.php(132): Controllers\DashboardController->widgetData(Object(Core\Request), Array)
+#4 C:\laragon\www\no-code-app\core\Router.php(78): Core\Router->callHandler('DashboardContro...', Array, Object(Core\Request))
+#5 C:\laragon\www\no-code-app\index.php(64): Core\Router->dispatch(Object(Core\Request))
+#6 {main}
+2026-04-30 08:43:09 | SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE rv.field_id = ?
+                GROUP BY rv.value
+                ORDER BY' at line 4
+#0 C:\laragon\www\no-code-app\engine\DashboardEngine.php(147): PDO->prepare('SELECT rv.value...')
+#1 C:\laragon\www\no-code-app\engine\DashboardEngine.php(89): Engine\DashboardEngine->computeGrouped(Array, Array)
+#2 C:\laragon\www\no-code-app\controllers\DashboardController.php(112): Engine\DashboardEngine->compute(Array)
+#3 C:\laragon\www\no-code-app\core\Router.php(132): Controllers\DashboardController->widgetData(Object(Core\Request), Array)
+#4 C:\laragon\www\no-code-app\core\Router.php(78): Core\Router->callHandler('DashboardContro...', Array, Object(Core\Request))
+#5 C:\laragon\www\no-code-app\index.php(64): Core\Router->dispatch(Object(Core\Request))
+#6 {main}
+2026-04-30 08:43:09 | SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE rv.field_id = ?' at line 4
+#0 C:\laragon\www\no-code-app\engine\DashboardEngine.php(121): PDO->prepare('SELECT AVG(CAST...')
+#1 C:\laragon\www\no-code-app\engine\DashboardEngine.php(88): Engine\DashboardEngine->computeAggregate('AVG', Array, Array)
+#2 C:\laragon\www\no-code-app\controllers\DashboardController.php(112): Engine\DashboardEngine->compute(Array)
+#3 C:\laragon\www\no-code-app\core\Router.php(132): Controllers\DashboardController->widgetData(Object(Core\Request), Array)
+#4 C:\laragon\www\no-code-app\core\Router.php(78): Core\Router->callHandler('DashboardContro...', Array, Object(Core\Request))
+#5 C:\laragon\www\no-code-app\index.php(64): Core\Router->dispatch(Object(Core\Request))
+#6 {main}
