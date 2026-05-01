@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? 'AppForge', ENT_QUOTES) ?> — AppForge</title>
-    <meta name="description" content="AppForge No-Code Application Builder Platform">
+    <title><?= htmlspecialchars($title ?? 'Modulyn', ENT_QUOTES) ?> — Modulyn</title>
+    <meta name="description" content="Modulyn No-Code Application Builder Platform">
     <meta name="csrf-token" content="<?= \Core\Session::get('_csrf_token') ?>">
     <meta name="app-url" content="<?= APP_URL ?>">
 

@@ -4,7 +4,7 @@
  */
 
 // Base URL — auto-detected from server, or override manually
-define('APP_NAME',    'AppForge');
+define('APP_NAME',    'Modulyn');
 define('APP_VERSION', '1.0.0');
 if (php_sapi_name() === 'cli') {
     define('APP_URL', 'http://localhost/no-code-app');

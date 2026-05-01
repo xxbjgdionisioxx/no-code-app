@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? 'AppForge', ENT_QUOTES) ?> — AppForge</title>
+    <title><?= htmlspecialchars($title ?? 'Modulyn', ENT_QUOTES) ?> — Modulyn</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -18,7 +18,7 @@
             <div class="auth-logo mb-3">
                 <i class="bi bi-grid-3x3-gap-fill"></i>
             </div>
-            <h1 class="h4 fw-bold text-white mb-1">AppForge</h1>
+            <h1 class="h4 fw-bold text-white mb-1">Modulyn</h1>
             <p class="text-muted small">No-Code Application Builder</p>
         </div>
 

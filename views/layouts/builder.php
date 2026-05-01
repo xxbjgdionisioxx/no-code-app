@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? 'Builder', ENT_QUOTES) ?> — AppForge Builder</title>
+    <title><?= htmlspecialchars($title ?? 'Builder', ENT_QUOTES) ?> — Modulyn Builder</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -22,7 +22,7 @@
         </a>
         <div class="vr"></div>
         <span class="fw-semibold text-white">
-            <i class="bi bi-grid-3x3-gap-fill text-primary me-1"></i> AppForge Builder
+            <i class="bi bi-grid-3x3-gap-fill text-primary me-1"></i> Modulyn Builder
         </span>
         <?php if (!empty($app)): ?>
             <span class="badge bg-primary"><?= htmlspecialchars($app['name']) ?></span>

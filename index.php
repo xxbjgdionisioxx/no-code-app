@@ -1,6 +1,6 @@
 <?php
 /**
- * Front Controller — AppForge No-Code Platform
+ * Front Controller — Modulyn No-Code Platform
  *
  * Single entry point for all HTTP requests.
  * Bootstraps config, autoloader, session, and routes the request.

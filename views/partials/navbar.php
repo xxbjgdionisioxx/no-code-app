@@ -11,7 +11,7 @@ if ($currentApp) {
 <nav class="navbar navbar-dark navbar-expand-lg app-navbar px-3">
     <a class="navbar-brand d-flex align-items-center gap-2" href="<?= APP_URL ?>">
         <div class="brand-icon"><i class="bi bi-grid-3x3-gap-fill"></i></div>
-        <span class="fw-bold">AppForge</span>
+        <span class="fw-bold">Modulyn</span>
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">

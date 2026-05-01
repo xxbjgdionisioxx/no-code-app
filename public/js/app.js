@@ -1,5 +1,5 @@
 /**
- * AppForge — Global JavaScript
+ * Modulyn — Global JavaScript
  * Bootstrap validation, auto-dismiss alerts, sidebar active state
  */
 
