@@ -29,6 +29,7 @@
             <?= \Core\CSRF::field() ?>
 
             <?php foreach ($schema['fields'] as $field): ?>
+                <?php if (!($field['show_in_form'] ?? true)) continue; ?>
                 <?php
                 $currentVal  = $record['values'][$field['slug']] ?? null;
                 $fieldErrors = $errors[$field['slug']] ?? [];

@@ -20,6 +20,22 @@
             <i class="bi bi-tools"></i>
         </a>
         <?php endif; ?>
+        <div class="dropdown">
+            <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-download me-1"></i> Export
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-secondary bg-dark">
+                <li><a class="dropdown-item text-white small" href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/<?= $module['slug'] ?>/export?format=csv&search=<?= urlencode($search) ?>">
+                    <i class="bi bi-filetype-csv me-2 text-success"></i> CSV (Standard)
+                </a></li>
+                <li><a class="dropdown-item text-white small" href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/<?= $module['slug'] ?>/export?format=excel&search=<?= urlencode($search) ?>">
+                    <i class="bi bi-file-earmark-excel me-2 text-primary"></i> Excel (XLSX Compatible)
+                </a></li>
+                <li><a class="dropdown-item text-white small" href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/<?= $module['slug'] ?>/export?format=txt&search=<?= urlencode($search) ?>">
+                    <i class="bi bi-file-earmark-text me-2 text-muted"></i> Text (Tab Separated)
+                </a></li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -75,16 +91,7 @@
                 <td>
                     <?php
                     $val = $rec['values'][$f['slug']] ?? null;
-                    // Truncate long text for list display
-                    if ($f['field_type'] === 'file' && $val) {
-                        echo '<i class="bi bi-paperclip text-muted"></i> <span class="small">' . htmlspecialchars(basename($val)) . '</span>';
-                    } elseif ($f['field_type'] === 'checkbox') {
-                        echo $val ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-secondary">No</span>';
-                    } elseif ($val && mb_strlen((string)$val) > 60) {
-                        echo '<span title="' . htmlspecialchars($val) . '">' . htmlspecialchars(mb_substr($val, 0, 60)) . '…</span>';
-                    } else {
-                        echo $val !== null && $val !== '' ? htmlspecialchars((string)$val) : '<span class="text-muted">—</span>';
-                    }
+                    echo $fieldEngine->renderDisplayValue($f, $val);
                     ?>
                 </td>
                 <?php endforeach; ?>

@@ -28,6 +28,7 @@
             <?= \Core\CSRF::field() ?>
 
             <?php foreach ($schema['fields'] as $field): ?>
+                <?php if (!($field['show_in_form'] ?? true)) continue; ?>
                 <?php
                 // Restore old value if validation failed
                 $oldVal = $oldValues["field_{$field['slug']}"] ?? null;

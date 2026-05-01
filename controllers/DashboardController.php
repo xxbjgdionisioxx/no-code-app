@@ -80,6 +80,7 @@ class DashboardController extends Controller
             'field_id'    => $req->post('field_id') ? (int)$req->post('field_id') : null,
             'chart_color' => $req->post('chart_color', '#6366f1'),
             'width'       => (int)$req->post('width', 4),
+            'filters'     => ['goal' => (int)$req->post('goal', 100)]
         ]);
 
         $this->flashSuccess('Widget added.');
@@ -142,6 +143,7 @@ class DashboardController extends Controller
             'field_id'    => $req->post('field_id') ? (int)$req->post('field_id') : null,
             'chart_color' => $req->post('chart_color', '#6366f1'),
             'width'       => (int)$req->post('width', 4),
+            'filters'     => ['goal' => (int)$req->post('goal', 100)]
         ]);
 
         $this->flashSuccess('Widget updated.');

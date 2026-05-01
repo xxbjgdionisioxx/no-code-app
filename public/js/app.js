@@ -292,4 +292,45 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // ── Real-time Formulas ──────────────────────────────────
+    function evaluateFormula(formula, values) {
+        let expression = formula;
+        for (const [slug, val] of Object.entries(values)) {
+            const regex = new RegExp(`\\{\\{${slug}\\}\\}`, 'g');
+            expression = expression.replace(regex, parseFloat(val) || 0);
+        }
+        expression = expression.replace(/\{\{[^}]+\}\}/g, '0');
+        
+        try {
+            if (!/^[0-9\.\+\-\*\/\(\)\s]+$/.test(expression)) return expression;
+            const res = Function(`"use strict"; return (${expression})`)();
+            return isNaN(res) ? 0 : res;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    function updateFormulas() {
+        const fields = Array.from(document.querySelectorAll('input[id^="field_"], select[id^="field_"], textarea[id^="field_"]'));
+        const values = {};
+        fields.forEach(f => {
+            const slug = f.id.replace('field_', '');
+            values[slug] = f.value;
+        });
+
+        document.querySelectorAll('[data-formula]').forEach(f => {
+            const formula = f.dataset.formula;
+            if (!formula) return;
+            const result = evaluateFormula(formula, values);
+            f.value = typeof result === 'number' ? result.toFixed(2) : result;
+        });
+    }
+
+    document.addEventListener('input', e => {
+        if (e.target.id && e.target.id.startsWith('field_')) {
+            updateFormulas();
+        }
+    });
+    updateFormulas();
 });

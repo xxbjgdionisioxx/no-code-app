@@ -29,8 +29,10 @@
                         'count'     => ['icon' => 'bi-hash',         'label' => 'Count',     'desc' => 'Number of records'],
                         'sum'       => ['icon' => 'bi-calculator',   'label' => 'Sum',       'desc' => 'Sum of a numeric field'],
                         'average'   => ['icon' => 'bi-graph-up',     'label' => 'Average',   'desc' => 'Average of a numeric field'],
-                        'bar_chart' => ['icon' => 'bi-bar-chart',    'label' => 'Bar Chart', 'desc' => 'Group by a dropdown field'],
-                        'pie_chart' => ['icon' => 'bi-pie-chart',    'label' => 'Pie / Donut','desc' => 'Distribution chart'],
+                        'pie_chart'   => ['icon' => 'bi-pie-chart',    'label' => 'Pie / Donut','desc' => 'Distribution chart'],
+                        'trend_chart' => ['icon' => 'bi-graph-up-arrow', 'label' => 'Trend',      'desc' => 'Time-series (30d)'],
+                        'progress_bar'=> ['icon' => 'bi-bullseye',       'label' => 'Progress',   'desc' => 'Goal tracking'],
+                        'top_list'    => ['icon' => 'bi-list-ol',        'label' => 'Top 5 List', 'desc' => 'Leading records'],
                     ];
                     $currentType = isset($widget) ? $widget['widget_type'] : 'count';
                     foreach ($widgetTypes as $wt => $info): ?>
@@ -58,7 +60,7 @@
                 </select>
             </div>
 
-            <div class="mb-4 <?= in_array($currentType, ['count']) ? 'd-none' : '' ?>" id="fieldGroup">
+            <div class="mb-4 <?= in_array($currentType, ['count','trend_chart']) ? 'd-none' : '' ?>" id="fieldGroup">
                 <label for="field_id" class="form-label fw-semibold">Field <span class="text-muted small">(for sum/avg/chart)</span></label>
                 <select class="form-select" id="field_id" name="field_id">
                     <option value="">— Select Field —</option>
@@ -76,6 +78,13 @@
                         <?php endif; ?>
                     <?php endforeach; ?>
                 </select>
+            </div>
+
+            <div class="mb-4 <?= ($currentType === 'progress_bar') ? '' : 'd-none' ?>" id="goalGroup">
+                <label for="goal" class="form-label fw-semibold">Goal Target</label>
+                <input type="number" class="form-control" id="goal" name="goal" 
+                       value="<?= isset($widget['filters']['goal']) ? (int)$widget['filters']['goal'] : '100' ?>">
+                <div class="form-text">Target value for the progress bar.</div>
             </div>
 
             <div class="row g-3 mb-4">
@@ -129,8 +138,11 @@ document.querySelectorAll('.widget-type-radio').forEach(radio => {
         document.getElementById('selectedWidgetType').value = this.value;
 
         // Show field selector for non-count types
-        const needsField = ['sum', 'average', 'bar_chart', 'pie_chart'].includes(this.value);
+        const needsField = ['sum', 'average', 'bar_chart', 'pie_chart', 'top_list'].includes(this.value);
         document.getElementById('fieldGroup').classList.toggle('d-none', !needsField);
+
+        // Show goal for progress bar
+        document.getElementById('goalGroup').classList.toggle('d-none', this.value !== 'progress_bar');
     });
 });
 

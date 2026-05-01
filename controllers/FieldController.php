@@ -27,7 +27,7 @@ class FieldController extends Controller
     {
         Middleware::auth();
         $app    = $this->appEngine->getApp((int)($params['appId'] ?? 0));
-        $module = $this->moduleEngine->getModule((int)($params['moduleId'] ?? 0));
+        $module = $this->moduleEngine->getSchema((int)($params['moduleId'] ?? 0));
         $this->view('builder.field_editor', [
             'title'  => 'Add Field',
             'app'    => $app,
@@ -54,11 +54,16 @@ class FieldController extends Controller
         }
 
         // Parse validation rules
+        $vMin = $req->post('v_min');
+        $vMax = $req->post('v_max');
+        $vMinLen = $req->post('v_min_length');
+        $vMaxLen = $req->post('v_max_length');
+
         $validation = array_filter([
-            'min'        => $req->post('v_min') !== '' ? (float)$req->post('v_min') : null,
-            'max'        => $req->post('v_max') !== '' ? (float)$req->post('v_max') : null,
-            'min_length' => $req->post('v_min_length') !== '' ? (int)$req->post('v_min_length') : null,
-            'max_length' => $req->post('v_max_length') !== '' ? (int)$req->post('v_max_length') : null,
+            'min'        => ($vMin !== null && $vMin !== '') ? (float)$vMin : null,
+            'max'        => ($vMax !== null && $vMax !== '') ? (float)$vMax : null,
+            'min_length' => ($vMinLen !== null && $vMinLen !== '') ? (int)$vMinLen : null,
+            'max_length' => ($vMaxLen !== null && $vMaxLen !== '') ? (int)$vMaxLen : null,
         ], fn($v) => $v !== null);
 
         $this->fieldEngine->createField($moduleId, [
@@ -66,13 +71,18 @@ class FieldController extends Controller
             'field_type'    => $req->post('field_type', 'text'),
             'is_required'   => (int)(bool)$req->post('is_required'),
             'is_unique'     => (int)(bool)$req->post('is_unique'),
-            'is_searchable' => (int)(bool)$req->post('is_searchable', '1'),
-            'show_in_list'  => (int)(bool)$req->post('show_in_list', '1'),
+            'is_searchable' => (int)(bool)$req->post('is_searchable'),
+            'show_in_list'  => (int)(bool)$req->post('show_in_list'),
+            'show_in_form'  => (int)(bool)$req->post('show_in_form'),
             'default_value' => $req->post('default_value'),
             'placeholder'   => $req->post('placeholder'),
             'help_text'     => $req->post('help_text'),
             'validation'    => $validation,
-            'options'       => $options,
+            'options'       => array_merge($options, [
+                'target_module_id'   => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null,
+                'display_field_slug' => $req->post('display_field_slug'),
+                'formula'            => $req->post('formula')
+            ]),
             'sort_order'    => (int)$req->post('sort_order', 0),
         ]);
 
@@ -91,7 +101,7 @@ class FieldController extends Controller
         $fieldId  = (int)($params['id']       ?? 0);
 
         $app    = $this->appEngine->getApp($appId);
-        $module = $this->moduleEngine->getModule($moduleId);
+        $module = $this->moduleEngine->getSchema($moduleId);
         $field  = $this->fieldEngine->getField($fieldId);
 
         $this->view('builder.field_editor', [
@@ -119,11 +129,16 @@ class FieldController extends Controller
             $options = ['choices' => array_values($choices)];
         }
 
+        $vMin = $req->post('v_min');
+        $vMax = $req->post('v_max');
+        $vMinLen = $req->post('v_min_length');
+        $vMaxLen = $req->post('v_max_length');
+
         $validation = array_filter([
-            'min'        => $req->post('v_min')        !== '' ? (float)$req->post('v_min')        : null,
-            'max'        => $req->post('v_max')        !== '' ? (float)$req->post('v_max')        : null,
-            'min_length' => $req->post('v_min_length') !== '' ? (int)$req->post('v_min_length')   : null,
-            'max_length' => $req->post('v_max_length') !== '' ? (int)$req->post('v_max_length')   : null,
+            'min'        => ($vMin !== null && $vMin !== '') ? (float)$vMin : null,
+            'max'        => ($vMax !== null && $vMax !== '') ? (float)$vMax : null,
+            'min_length' => ($vMinLen !== null && $vMinLen !== '') ? (int)$vMinLen : null,
+            'max_length' => ($vMaxLen !== null && $vMaxLen !== '') ? (int)$vMaxLen : null,
         ], fn($v) => $v !== null);
 
         $this->fieldEngine->updateField($fieldId, [
@@ -131,13 +146,18 @@ class FieldController extends Controller
             'field_type'    => $req->post('field_type', 'text'),
             'is_required'   => (int)(bool)$req->post('is_required'),
             'is_unique'     => (int)(bool)$req->post('is_unique'),
-            'is_searchable' => (int)(bool)$req->post('is_searchable', '1'),
-            'show_in_list'  => (int)(bool)$req->post('show_in_list', '1'),
+            'is_searchable' => (int)(bool)$req->post('is_searchable'),
+            'show_in_list'  => (int)(bool)$req->post('show_in_list'),
+            'show_in_form'  => (int)(bool)$req->post('show_in_form'),
             'default_value' => $req->post('default_value'),
             'placeholder'   => $req->post('placeholder'),
             'help_text'     => $req->post('help_text'),
             'validation'    => $validation,
-            'options'       => $options,
+            'options'       => array_merge($options, [
+                'target_module_id'   => $req->post('target_module_id') ? (int)$req->post('target_module_id') : null,
+                'display_field_slug' => $req->post('display_field_slug'),
+                'formula'            => $req->post('formula')
+            ]),
         ]);
 
         $this->flashSuccess('Field updated.');
@@ -163,5 +183,13 @@ class FieldController extends Controller
             $this->fieldEngine->reorderFields($ids);
         }
         $this->json(['success' => true]);
+    }
+
+    public function fieldsJson(Request $req, array $params): void
+    {
+        Middleware::auth();
+        $moduleId = (int)($params['moduleId'] ?? 0);
+        $schema   = $this->moduleEngine->getSchema($moduleId);
+        $this->json($schema['fields']);
     }
 }

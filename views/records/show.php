@@ -37,6 +37,7 @@
         <table class="table table-dark table-hover mb-0 align-middle">
             <tbody>
                 <?php foreach ($schema['fields'] as $field): ?>
+                <?php if (!($field['show_in_form'] ?? true)) continue; ?>
                 <tr>
                     <th class="ps-4 py-3 text-muted fw-normal" style="width:220px;">
                         <i class="bi bi-dot me-1"></i>
