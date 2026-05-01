@@ -35,6 +35,7 @@ class RecordEngine
      */
     public function createRecord(int $appId, int $moduleId, int $userId, array $values, array $files, array $schema): int
     {
+        $values = $this->sanitizeValues($values);
         $this->db->beginTransaction();
 
         try {
@@ -157,6 +158,7 @@ class RecordEngine
      */
     public function updateRecord(int $recordId, int $userId, array $values, array $files, array $schema): bool
     {
+        $values = $this->sanitizeValues($values);
         $this->db->beginTransaction();
 
         try {
@@ -322,5 +324,30 @@ class RecordEngine
                 throw new \RuntimeException("The value '{$value}' for field '{$field['name']}' already exists. It must be unique.");
             }
         }
+    }
+
+    /**
+     * Sanitize incoming field values to strip unwanted browser/proxy metadata.
+     * (e.g., "From http://localhost" or correlation UUIDs)
+     */
+    private function sanitizeValues(array $values): array
+    {
+        foreach ($values as $slug => &$val) {
+            if (is_string($val) && str_contains($val, 'From http')) {
+                $lines = explode("\n", str_replace("\r\n", "\n", $val));
+                $cleanLines = [];
+                foreach ($lines as $line) {
+                    $trimmed = trim($line);
+                    if ($trimmed === '') continue;
+                    // Skip lines containing "From http"
+                    if (str_contains($trimmed, 'From http')) continue;
+                    // Skip standalone UUID-like lines
+                    if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $trimmed)) continue;
+                    $cleanLines[] = $line;
+                }
+                $val = trim(implode("\n", $cleanLines));
+            }
+        }
+        return $values;
     }
 }

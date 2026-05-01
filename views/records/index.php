@@ -1,9 +1,15 @@
 <!-- Dynamic Record List View -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1 class="h3 fw-bold mb-1">
+        <h1 class="h3 fw-bold mb-1 d-flex align-items-center">
             <i class="bi <?= htmlspecialchars($module['icon']) ?> me-2"></i>
             <?= htmlspecialchars($module['name']) ?>
+            <?php if (!empty($user['is_admin'])): ?>
+            <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/modules/<?= $module['id'] ?>/builder"
+               class="btn btn-sm btn-outline-secondary ms-3" title="Open Builder">
+                <i class="bi bi-tools me-1"></i> Builder
+            </a>
+            <?php endif; ?>
         </h1>
         <p class="text-muted mb-0"><?= number_format($result['total']) ?> record<?= $result['total'] !== 1 ? 's' : '' ?></p>
     </div>
@@ -12,12 +18,6 @@
         <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/<?= $module['slug'] ?>/create"
            class="btn btn-primary" id="new-record-btn">
             <i class="bi bi-plus-lg me-1"></i> New <?= htmlspecialchars($module['name']) ?>
-        </a>
-        <?php endif; ?>
-        <?php if (!empty($user['is_admin'])): ?>
-        <a href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/modules/<?= $module['id'] ?>/builder"
-           class="btn btn-outline-secondary" title="Open Builder">
-            <i class="bi bi-tools"></i>
         </a>
         <?php endif; ?>
         <div class="dropdown">
@@ -33,6 +33,10 @@
                 </a></li>
                 <li><a class="dropdown-item text-white small" href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/<?= $module['slug'] ?>/export?format=txt&search=<?= urlencode($search) ?>">
                     <i class="bi bi-file-earmark-text me-2 text-muted"></i> Text (Tab Separated)
+                </a></li>
+                <li><hr class="dropdown-divider border-secondary"></li>
+                <li><a class="dropdown-item text-white small" href="<?= APP_URL ?>/apps/<?= $app['id'] ?>/<?= $module['slug'] ?>/export?format=json&search=<?= urlencode($search) ?>">
+                    <i class="bi bi-filetype-json me-2 text-warning"></i> JSON (Raw Data)
                 </a></li>
             </ul>
         </div>

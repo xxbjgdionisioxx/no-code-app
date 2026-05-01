@@ -267,15 +267,24 @@ class RecordController extends Controller
             'sort_dir' => 'DESC',
         ], $schema);
 
-        $ext = ($format === 'txt') ? 'txt' : 'csv';
-        $filename = $module['slug'] . '_export_' . date('Ymd_His') . '.' . $ext;
+        $filename = $module['slug'] . '_export_' . date('Ymd_His');
 
+        if ($format === 'json') {
+            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '.json"');
+            echo json_encode($result['records'], JSON_PRETTY_PRINT);
+            exit;
+        }
+
+        $ext = ($format === 'txt') ? 'txt' : 'csv';
         if ($format === 'txt') {
             header('Content-Type: text/plain; charset=utf-8');
+        } elseif ($format === 'excel') {
+            header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         } else {
             header('Content-Type: text/csv; charset=utf-8');
         }
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename="' . $filename . '.' . $ext . '"');
 
         $output = fopen('php://output', 'w');
         
@@ -297,7 +306,6 @@ class RecordController extends Controller
             $row = [$record['id']];
             foreach ($schema['fields'] as $field) {
                 $val = $record['values'][$field['slug']] ?? '';
-                // Handle complex types if needed
                 if (is_array($val)) $val = json_encode($val);
                 $row[] = $val;
             }

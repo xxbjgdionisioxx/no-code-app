@@ -78,10 +78,9 @@ $router->get('/apps/{appId}/{moduleSlug}',              'RecordController@index'
 $router->get('/apps/{appId}/{moduleSlug}/create',       'RecordController@create');
 $router->post('/apps/{appId}/{moduleSlug}',             'RecordController@store');
 $router->get('/apps/{appId}/{moduleSlug}/{id}',         'RecordController@show');
-$router->get('/apps/{appId}/{moduleSlug}/{id}/edit',    'RecordController@edit');
-$router->post('/apps/{appId}/{moduleSlug}/{id}',        'RecordController@update');
-$router->get('/apps/{appId}/{moduleSlug}/export',      'RecordController@export');
-$router->match(['GET', 'POST'], '/apps/{appId}/{moduleSlug}/{id}/delete', 'RecordController@destroy');
+    $router->get('/apps/{appId}/{moduleSlug}/{id}/edit',    'RecordController@edit');
+    $router->post('/apps/{appId}/{moduleSlug}/{id}',        'RecordController@update');
+    $router->match(['GET', 'POST'], '/apps/{appId}/{moduleSlug}/{id}/delete', 'RecordController@destroy');
 
 // ── REST API ────────────────────────────────────────────────
 $router->get('/api/{appSlug}/{moduleSlug}',           'ApiController@index');

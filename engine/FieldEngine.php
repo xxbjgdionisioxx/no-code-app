@@ -209,7 +209,7 @@ class FieldEngine
     private function registerBuiltInTypes(): void
     {
         $this->registry['text'] = [
-            'render' => fn($f, $v) => "<input type=\"text\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\">",
+            'render' => fn($f, $v) => "<input type=\"text\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\" autocomplete=\"off\">",
             'validate' => function ($f, $v) {
                 $errs = [];
                 if ($f['is_required'] && empty($v)) $errs[] = "{$f['name']} is required.";
@@ -219,7 +219,7 @@ class FieldEngine
         ];
 
         $this->registry['number'] = [
-            'render' => fn($f, $v) => "<input type=\"number\" step=\"any\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\">",
+            'render' => fn($f, $v) => "<input type=\"number\" step=\"any\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\" autocomplete=\"off\">",
             'validate' => function ($f, $v) {
                 $errs = [];
                 if ($f['is_required'] && ($v === null || $v === '')) $errs[] = "{$f['name']} is required.";
@@ -230,7 +230,7 @@ class FieldEngine
         ];
 
         $this->registry['textarea'] = [
-            'render' => fn($f, $v) => "<textarea class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" rows=\"3\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\">" . htmlspecialchars((string)$v) . "</textarea>",
+            'render' => fn($f, $v) => "<textarea class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" rows=\"3\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\" autocomplete=\"off\">" . htmlspecialchars((string)$v) . "</textarea>",
             'validate' => function ($f, $v) {
                 if ($f['is_required'] && empty($v)) return ["{$f['name']} is required."];
                 return [];
@@ -239,7 +239,7 @@ class FieldEngine
         ];
 
         $this->registry['email'] = [
-            'render' => fn($f, $v) => "<input type=\"email\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\">",
+            'render' => fn($f, $v) => "<input type=\"email\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\" placeholder=\"" . htmlspecialchars($f['placeholder'] ?? '') . "\" autocomplete=\"off\">",
             'validate' => function ($f, $v) {
                 $errs = [];
                 if ($f['is_required'] && empty($v)) $errs[] = "{$f['name']} is required.";
@@ -250,7 +250,7 @@ class FieldEngine
         ];
 
         $this->registry['date'] = [
-            'render' => fn($f, $v) => "<input type=\"date\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\">",
+            'render' => fn($f, $v) => "<input type=\"date\" class=\"form-control\" id=\"field_{$f['slug']}\" name=\"field_{$f['slug']}\" value=\"" . htmlspecialchars((string)$v) . "\" autocomplete=\"off\">",
             'validate' => fn($f, $v) => ($f['is_required'] && empty($v)) ? ["{$f['name']} is required."] : [],
             'cast' => fn($v) => (string)$v,
         ];

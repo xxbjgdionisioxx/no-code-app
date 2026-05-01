@@ -333,4 +333,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     updateFormulas();
+
+    // ── Paste Sanitizer (Strip browser/sharing metadata) ──────
+    document.addEventListener('paste', e => {
+        const el = e.target;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            const clipboardData = e.clipboardData || window.clipboardData;
+            const pastedData = clipboardData.getData('text');
+            
+            // Detect the "From http://localhost" or similar metadata lines
+            // Example: "2a1ad58d-aefc-4971-a3eb-ebf847df25e4\nFrom http://localhost"
+            if (pastedData.includes('From http')) {
+                e.preventDefault();
+                // Take only the first line if it's not the metadata line, or try to extract the core value
+                const lines = pastedData.split(/\r?\n/).map(l => l.trim()).filter(l => l !== '');
+                const cleanData = lines.find(l => !l.includes('From http') && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(l));
+                
+                if (cleanData !== undefined) {
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
+                    const text = el.value;
+                    el.value = text.slice(0, start) + cleanData + text.slice(end);
+                    el.selectionStart = el.selectionEnd = start + cleanData.length;
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }
+        }
+    });
 });
