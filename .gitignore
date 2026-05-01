@@ -29,3 +29,4 @@ Thumbs.db
 # Custom / Temp
 scratch/
 request.log
+*.log
