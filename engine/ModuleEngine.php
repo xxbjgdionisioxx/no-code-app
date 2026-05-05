@@ -25,8 +25,8 @@ class ModuleEngine
         $slug = $this->generateModuleSlug($appId, $data['name']);
 
         $stmt = $this->db->prepare(
-            'INSERT INTO modules (app_id, name, slug, description, icon, sort_order)
-             VALUES (:app_id, :name, :slug, :description, :icon, :sort_order)'
+            'INSERT INTO modules (app_id, name, slug, description, icon, sort_order, settings)
+             VALUES (:app_id, :name, :slug, :description, :icon, :sort_order, :settings)'
         );
 
         $stmt->execute([
@@ -36,6 +36,7 @@ class ModuleEngine
             ':description' => $data['description'] ?? null,
             ':icon'        => $data['icon']        ?? 'bi-table',
             ':sort_order'  => $data['sort_order']  ?? 0,
+            ':settings'    => isset($data['settings']) ? json_encode($data['settings']) : null,
         ]);
 
         $moduleId = (int) $this->db->lastInsertId();
@@ -53,7 +54,11 @@ class ModuleEngine
     {
         $stmt = $this->db->prepare('SELECT * FROM modules WHERE id = ? AND is_active = 1');
         $stmt->execute([$moduleId]);
-        return $stmt->fetch() ?: null;
+        $module = $stmt->fetch();
+        if ($module) {
+            $module['settings'] = $module['settings'] ? json_decode($module['settings'], true) : [];
+        }
+        return $module ?: null;
     }
 
     /**
@@ -66,7 +71,11 @@ class ModuleEngine
             'SELECT * FROM modules WHERE app_id = ? AND slug = ? AND is_active = 1'
         );
         $stmt->execute([$appId, $slug]);
-        return $stmt->fetch() ?: null;
+        $module = $stmt->fetch();
+        if ($module) {
+            $module['settings'] = $module['settings'] ? json_decode($module['settings'], true) : [];
+        }
+        return $module ?: null;
     }
 
     /**
@@ -78,7 +87,11 @@ class ModuleEngine
             'SELECT * FROM modules WHERE app_id = ? AND is_active = 1 ORDER BY sort_order ASC, id ASC'
         );
         $stmt->execute([$appId]);
-        return $stmt->fetchAll();
+        $modules = $stmt->fetchAll();
+        foreach ($modules as &$m) {
+            $m['settings'] = $m['settings'] ? json_decode($m['settings'], true) : [];
+        }
+        return $modules;
     }
 
     /**
@@ -88,7 +101,7 @@ class ModuleEngine
     {
         $stmt = $this->db->prepare(
             'UPDATE modules SET name = :name, description = :description,
-             icon = :icon, sort_order = :sort_order WHERE id = :id'
+             icon = :icon, sort_order = :sort_order, settings = :settings WHERE id = :id'
         );
 
         return $stmt->execute([
@@ -96,6 +109,7 @@ class ModuleEngine
             ':description' => $data['description'] ?? null,
             ':icon'        => $data['icon']         ?? 'bi-table',
             ':sort_order'  => $data['sort_order']   ?? 0,
+            ':settings'    => isset($data['settings']) ? json_encode($data['settings']) : null,
             ':id'          => $moduleId,
         ]);
     }

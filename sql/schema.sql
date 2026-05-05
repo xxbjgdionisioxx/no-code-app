@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS `fields` (
     `is_unique`      TINYINT(1)    NOT NULL DEFAULT 0,
     `is_searchable`  TINYINT(1)    NOT NULL DEFAULT 1,
     `show_in_list`   TINYINT(1)    NOT NULL DEFAULT 1,  -- Show as column in list view
+    `show_in_form`   TINYINT(1)    NOT NULL DEFAULT 1,  -- Show in create/edit forms
     `default_value`  TEXT          NULL,
     `placeholder`    VARCHAR(255)  NULL,
     `help_text`      VARCHAR(255)  NULL,
@@ -89,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `fields` (
     `validation`     JSON          NULL,
     -- Field-type-specific options: dropdown choices, file accept types, etc.
     `options`        JSON          NULL,
+    `settings`       JSON          NULL,      -- Generic UI/UX settings
     `sort_order`     INT           NOT NULL DEFAULT 0,
     `created_at`     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`     DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -240,6 +242,7 @@ CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
     `position_x`   TINYINT        NOT NULL DEFAULT 0,
     `position_y`   TINYINT        NOT NULL DEFAULT 0,
     `width`        TINYINT        NOT NULL DEFAULT 4,  -- Bootstrap col width (1-12)
+    `settings`     JSON           NULL,      -- Advanced widget config (refresh, drill-down)
     `created_at`   DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_dw_app`    FOREIGN KEY (`app_id`)    REFERENCES `apps`    (`id`) ON DELETE CASCADE,

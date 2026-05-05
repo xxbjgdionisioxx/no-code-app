@@ -22,8 +22,8 @@ class DashboardEngine
     {
         $stmt = $this->db->prepare(
             'INSERT INTO dashboard_widgets
-             (app_id, user_id, title, widget_type, module_id, field_id, filters, chart_color, width)
-             VALUES (:app_id, :user_id, :title, :widget_type, :module_id, :field_id, :filters, :chart_color, :width)'
+             (app_id, user_id, title, widget_type, module_id, field_id, filters, chart_color, width, settings)
+             VALUES (:app_id, :user_id, :title, :widget_type, :module_id, :field_id, :filters, :chart_color, :width, :settings)'
         );
         $stmt->execute([
             ':app_id'      => $appId,
@@ -35,6 +35,7 @@ class DashboardEngine
             ':filters'     => isset($data['filters']) ? json_encode($data['filters']) : null,
             ':chart_color' => $data['chart_color'] ?? '#6366f1',
             ':width'       => (int)($data['width'] ?? 4),
+            ':settings'    => isset($data['settings']) ? json_encode($data['settings']) : null,
         ]);
         return (int)$this->db->lastInsertId();
     }
@@ -44,7 +45,8 @@ class DashboardEngine
         $stmt = $this->db->prepare(
             'UPDATE dashboard_widgets
              SET title = :title, widget_type = :widget_type, module_id = :module_id,
-                 field_id = :field_id, filters = :filters, chart_color = :chart_color, width = :width
+                 field_id = :field_id, filters = :filters, chart_color = :chart_color, 
+                 width = :width, settings = :settings
              WHERE id = :id'
         );
         return $stmt->execute([
@@ -56,6 +58,7 @@ class DashboardEngine
             ':filters'     => isset($data['filters']) ? json_encode($data['filters']) : null,
             ':chart_color' => $data['chart_color'] ?? '#6366f1',
             ':width'       => (int)($data['width'] ?? 4),
+            ':settings'    => isset($data['settings']) ? json_encode($data['settings']) : null,
         ]);
     }
 
@@ -65,7 +68,8 @@ class DashboardEngine
         $stmt->execute([$widgetId]);
         $w = $stmt->fetch();
         if (!$w) return null;
-        $w['filters'] = $w['filters'] ? json_decode($w['filters'], true) : [];
+        $w['filters']  = $w['filters']  ? json_decode($w['filters'], true)  : [];
+        $w['settings'] = $w['settings'] ? json_decode($w['settings'], true) : [];
         return $w;
     }
 
@@ -82,7 +86,8 @@ class DashboardEngine
         $stmt->execute([$appId, $userId]);
         $widgets = $stmt->fetchAll();
         foreach ($widgets as &$w) {
-            $w['filters'] = $w['filters'] ? json_decode($w['filters'], true) : [];
+            $w['filters']  = $w['filters']  ? json_decode($w['filters'], true)  : [];
+            $w['settings'] = $w['settings'] ? json_decode($w['settings'], true) : [];
         }
         return $widgets;
     }
@@ -102,7 +107,7 @@ class DashboardEngine
     {
         $filters = $widget['filters'] ?? [];
 
-        return match ($widget['widget_type']) {
+        $result = match ($widget['widget_type']) {
             'count'     => $this->computeCount($widget, $filters),
             'sum'       => $this->computeAggregate('SUM', $widget, $filters),
             'average'   => $this->computeAggregate('AVG', $widget, $filters),
@@ -113,6 +118,10 @@ class DashboardEngine
             'top_list'    => $this->computeTopList($widget, $filters),
             default       => ['value' => 0],
         };
+
+        // Inject advanced settings into result (e.g. drill-down URL)
+        $result['settings'] = $widget['settings'] ?? [];
+        return $result;
     }
 
     /**

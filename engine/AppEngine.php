@@ -26,8 +26,8 @@ class AppEngine
     {
         $slug = $this->generateSlug($data['name']);
 
-        $sql = 'INSERT INTO apps (name, slug, description, icon, color, owner_id)
-                VALUES (:name, :slug, :description, :icon, :color, :owner_id)';
+        $sql = 'INSERT INTO apps (name, slug, description, icon, color, owner_id, settings)
+                VALUES (:name, :slug, :description, :icon, :color, :owner_id, :settings)';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
@@ -37,6 +37,7 @@ class AppEngine
             ':icon'        => $data['icon']        ?? 'bi-grid',
             ':color'       => $data['color']       ?? '#6366f1',
             ':owner_id'    => $ownerId,
+            ':settings'    => isset($data['settings']) ? json_encode($data['settings']) : null,
         ]);
 
         $appId = (int) $this->db->lastInsertId();
@@ -57,7 +58,11 @@ class AppEngine
     {
         $stmt = $this->db->prepare('SELECT * FROM apps WHERE id = ? AND is_active = 1');
         $stmt->execute([$appId]);
-        return $stmt->fetch() ?: null;
+        $app = $stmt->fetch();
+        if ($app) {
+            $app['settings'] = $app['settings'] ? json_decode($app['settings'], true) : [];
+        }
+        return $app ?: null;
     }
 
     /**
@@ -67,7 +72,11 @@ class AppEngine
     {
         $stmt = $this->db->prepare('SELECT * FROM apps WHERE slug = ? AND is_active = 1');
         $stmt->execute([$slug]);
-        return $stmt->fetch() ?: null;
+        $app = $stmt->fetch();
+        if ($app) {
+            $app['settings'] = $app['settings'] ? json_decode($app['settings'], true) : [];
+        }
+        return $app ?: null;
     }
 
     /**
@@ -92,7 +101,11 @@ class AppEngine
             $stmt->execute([$userId]);
         }
 
-        return $stmt->fetchAll();
+        $apps = $stmt->fetchAll();
+        foreach ($apps as &$app) {
+            $app['settings'] = $app['settings'] ? json_decode($app['settings'], true) : [];
+        }
+        return $apps;
     }
 
     /**
@@ -102,7 +115,7 @@ class AppEngine
     {
         $stmt = $this->db->prepare(
             'UPDATE apps SET name = :name, description = :description,
-             icon = :icon, color = :color WHERE id = :id'
+             icon = :icon, color = :color, settings = :settings WHERE id = :id'
         );
 
         return $stmt->execute([
@@ -110,6 +123,7 @@ class AppEngine
             ':description' => $data['description'] ?? null,
             ':icon'        => $data['icon']         ?? 'bi-grid',
             ':color'       => $data['color']        ?? '#6366f1',
+            ':settings'    => isset($data['settings']) ? json_encode($data['settings']) : null,
             ':id'          => $appId,
         ]);
     }

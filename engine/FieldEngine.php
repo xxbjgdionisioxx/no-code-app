@@ -26,10 +26,10 @@ class FieldEngine
         $stmt = $this->db->prepare(
             'INSERT INTO fields (module_id, name, slug, field_type, is_required, is_unique,
              is_searchable, show_in_list, show_in_form, default_value, placeholder, help_text,
-             validation, options, sort_order)
+             validation, options, settings, sort_order)
              VALUES (:module_id,:name,:slug,:field_type,:is_required,:is_unique,
              :is_searchable,:show_in_list,:show_in_form,:default_value,:placeholder,:help_text,
-             :validation,:options,:sort_order)'
+             :validation,:options,:settings,:sort_order)'
         );
         $stmt->execute([
             ':module_id'     => $moduleId,
@@ -46,6 +46,7 @@ class FieldEngine
             ':help_text'     => $data['help_text']            ?? null,
             ':validation'    => isset($data['validation']) ? json_encode($data['validation']) : null,
             ':options'       => isset($data['options'])    ? json_encode($data['options'])    : null,
+            ':settings'      => isset($data['settings'])   ? json_encode($data['settings'])   : null,
             ':sort_order'    => (int)($data['sort_order']     ?? 0),
         ]);
         return (int)$this->db->lastInsertId();
@@ -57,7 +58,7 @@ class FieldEngine
             'UPDATE fields SET name=:name, field_type=:field_type, is_required=:is_required,
              is_unique=:is_unique, is_searchable=:is_searchable, show_in_list=:show_in_list,
              show_in_form=:show_in_form, default_value=:default_value, placeholder=:placeholder, 
-             help_text=:help_text, validation=:validation, options=:options WHERE id=:id'
+             help_text=:help_text, validation=:validation, options=:options, settings=:settings WHERE id=:id'
         );
         return $stmt->execute([
             ':name'          => $data['name'],
@@ -72,6 +73,7 @@ class FieldEngine
             ':help_text'     => $data['help_text']            ?? null,
             ':validation'    => isset($data['validation']) ? json_encode($data['validation']) : null,
             ':options'       => isset($data['options'])    ? json_encode($data['options'])    : null,
+            ':settings'      => isset($data['settings'])   ? json_encode($data['settings'])   : null,
             ':id'            => $fieldId,
         ]);
     }
@@ -89,6 +91,7 @@ class FieldEngine
         if (!$f) return null;
         $f['validation'] = $f['validation'] ? json_decode($f['validation'], true) : [];
         $f['options']    = $f['options']    ? json_decode($f['options'], true)    : [];
+        $f['settings']   = $f['settings']   ? json_decode($f['settings'], true)   : [];
         return $f;
     }
 
@@ -113,7 +116,16 @@ class FieldEngine
         $required = $field['is_required'] ? '<span class="text-danger">*</span>' : '';
         $help = $field['help_text'] ? "<div class=\"form-text\">" . htmlspecialchars($field['help_text']) . "</div>" : '';
 
-        $html = "<div class=\"field-container\" data-field-slug=\"{$field['slug']}\">";
+        $settings = $field['settings'] ?? [];
+        $customClass = $settings['custom_class'] ?? '';
+        $conditionAttr = '';
+
+        if (!empty($settings['show_if'])) {
+            $jsonCondition = htmlspecialchars(json_encode($settings['show_if']));
+            $conditionAttr = " data-show-if='{$jsonCondition}'";
+        }
+
+        $html = "<div class=\"field-container {$customClass}\" data-field-slug=\"{$field['slug']}\"{$conditionAttr}>";
         $html .= "<label class=\"form-label fw-bold small mb-1\">" . htmlspecialchars($field['name']) . " {$required}</label>";
         $html .= $handler['render']($field, $value);
         $html .= $help;
